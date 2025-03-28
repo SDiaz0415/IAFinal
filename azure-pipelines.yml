@@ -72,6 +72,15 @@ stages:
           az aks show --resource-group $(resourceGroup) --name $(aksClusterName) || \
           az aks create --resource-group $(resourceGroup) --name $(aksClusterName) --node-count 2 --generate-ssh-keys
 
+    - task: AzureCLI@2
+      displayName: "Get AKS Credentials"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName) --overwrite-existing
+
     - task: KubernetesManifest@1
       displayName: "Deploy to AKS"
       inputs:
@@ -83,3 +92,14 @@ stages:
           k8s/backend-deployment.yaml
           k8s/frontend-deployment.yaml
           k8s/service.yaml
+
+    - task: AzureCLI@2
+      displayName: "Force Image Update in AKS"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          kubectl set image deployment/ollama ollama=$(ollamaImageName):latest
+          kubectl set image deployment/backend backend=$(backendImageName):latest
+          kubectl set image deployment/frontend frontend=$(frontendImageName):latest

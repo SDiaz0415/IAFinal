@@ -20,17 +20,3 @@ spec:
         env:
         - name: API_URL
           value: "http://backend:8080/predict"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend
-spec:
-  selector:
-    app: frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8000
-  type: LoadBalancer  # Exponer el frontend con una IP pública
-

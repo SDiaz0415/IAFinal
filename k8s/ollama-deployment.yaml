@@ -28,28 +28,3 @@ spec:
       volumes:
       - name: ollama-storage
         emptyDir: {}
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ollama
-spec:
-  selector:
-    app: ollama
-  ports:
-    - protocol: TCP
-      port: 11434
-      targetPort: 11434
-  type: ClusterIP
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: ollama-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
