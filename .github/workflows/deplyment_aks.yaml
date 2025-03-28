@@ -1,10 +1,7 @@
 name: Create AKS Cluster
 
 on:
-  push:
-    branches:
-      - main  # Se ejecuta cuando hay cambios en la rama main
-  workflow_dispatch:  # Permite ejecutarlo manualmente
+  workflow_dispatch:
 
 permissions:
   id-token: write
