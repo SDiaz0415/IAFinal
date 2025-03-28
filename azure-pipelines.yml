@@ -12,6 +12,7 @@ variables:
   ollamaImageName: 'ollama/ollama'  # Imagen oficial de Ollama
   aksClusterName: 'mi-cluster-aks'
   resourceGroup: 'grupo-k8s'
+  aksServiceConnection: 'KubernetesServiceConnection'  # Nombre dinámico de la conexión
 
 stages:
 - stage: BuildAndPush
@@ -60,32 +61,50 @@ stages:
   displayName: "Deploy to AKS"
   jobs:
   - job: Deploy
-    displayName: "Create AKS and Deploy"
+    displayName: "Deploy to Azure Kubernetes Service"
     steps:
     - task: AzureCLI@2
-      displayName: "Create AKS Cluster"
+      displayName: "Get AKS Credentials"
       inputs:
         azureSubscription: 'AzureServiceConnection'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az aks show --resource-group $(resourceGroup) --name $(aksClusterName) || \
-          az aks create --resource-group $(resourceGroup) --name $(aksClusterName) --node-count 2 --generate-ssh-keys
+          # Obtener credenciales de AKS
+          az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
 
-    - task: AzureCLI@2
-      displayName: "Configure kubectl"
+    - task: KubernetesManifest@1
+      displayName: "Deploy Backend to AKS"
       inputs:
-        azureSubscription: 'AzureServiceConnection'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName) --admin
-          kubectl config current-context
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/backend-deployment.yaml
 
-    - task: Kubernetes@1
-      displayName: "Deploy to AKS using kubectl"
+    - task: KubernetesManifest@1
+      displayName: "Deploy Frontend to AKS"
       inputs:
-        connectionType: 'None'  # No usamos una conexión manual, sino la credencial obtenida
-        command: 'apply'
-        arguments: '-f k8s/'
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/frontend-deployment.yaml
 
+    - task: KubernetesManifest@1
+      displayName: "Deploy Ollama to AKS"
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/ollama-deployment.yaml
+
+    - task: KubernetesManifest@1
+      displayName: "Deploy Services to AKS"
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/service.yaml
