@@ -22,8 +22,4 @@ dependencies = [
     "uvicorn>=0.34.0",
 ]
 
-[tool.setuptools]
-packages = ["backend"]
-
-
 

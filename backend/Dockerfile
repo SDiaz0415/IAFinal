@@ -1,19 +1,22 @@
-# Usa una imagen de Python 3.11
+# Usa Python 3.11 como base
 FROM python:3.11
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copia los archivos del backend al contenedor
-COPY . .
+# Copia solo los archivos necesarios para instalar dependencias
+COPY pyproject.toml uv.lock /app/
 
-# Instala UV y dependencias desde pyproject.toml
-RUN pip install uv && uv pip install -e .
+# Instala UV
+RUN pip install uv
 
-# Instalar dependencias con UV
-RUN uv sync
+# Crea el entorno virtual y sincroniza dependencias
+RUN uv venv && uv pip install -e . && uv sync
 
-# Exponer el puerto del backend
+# Copia el resto del código (incluyendo todas las carpetas necesarias)
+COPY . /app
+
+# Expone el puerto del backend
 EXPOSE 8080
 
 # Comando para correr el backend con Uvicorn

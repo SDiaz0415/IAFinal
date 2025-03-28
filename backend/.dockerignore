@@ -1,0 +1,8 @@
+# Ignorar el entorno virtual local
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+node_modules/
+
