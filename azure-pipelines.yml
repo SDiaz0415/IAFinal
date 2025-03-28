@@ -1,0 +1,105 @@
+trigger:
+- main  # Se ejecuta cuando hay cambios en la rama principal de GitHub
+
+resources:
+  repositories:
+  - repository: self
+    type: github
+    endpoint: 'GitHubConnection'  # Conexión con GitHub
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  RESOURCE_GROUP: 'myResourceGroup'
+  LOCATION: 'eastus'  # Puedes cambiarlo a otra región
+  CONTAINER_ENV: 'myContainerEnv'
+  BACKEND_APP_NAME: 'myBackendApp'
+  FRONTEND_APP_NAME: 'myFrontendApp'
+  AZURE_SERVICE_CONNECTION: 'AzureServiceConnection'
+
+stages:
+- stage: Setup
+  displayName: 'Setup Azure Resources'
+  jobs:
+  - job: CreateResources
+    displayName: 'Create Azure Resources'
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Create Resource Group'
+      inputs:
+        azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az group create --name $(RESOURCE_GROUP) --location $(LOCATION)
+
+    - task: AzureCLI@2
+      displayName: 'Create Container Apps Environment'
+      inputs:
+        azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp env create \
+            --name $(CONTAINER_ENV) \
+            --resource-group $(RESOURCE_GROUP) \
+            --location $(LOCATION)
+
+- stage: Build
+  displayName: 'Build Docker Images'
+  jobs:
+  - job: BuildImages
+    displayName: 'Build Backend and Frontend Images'
+    steps:
+    - task: Docker@2
+      displayName: 'Build Backend Image'
+      inputs:
+        command: 'build'
+        dockerfile: './backend/Dockerfile'
+        buildContext: './backend'
+        tags: 'backend:latest'
+    
+    - task: Docker@2
+      displayName: 'Build Frontend Image'
+      inputs:
+        command: 'build'
+        dockerfile: './frontend/Dockerfile'
+        buildContext: './frontend'
+        tags: 'frontend:latest'
+
+- stage: Deploy
+  displayName: 'Deploy to Azure'
+  jobs:
+  - job: DeployContainers
+    displayName: 'Deploy Backend and Frontend to Azure'
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Deploy Backend to Azure'
+      inputs:
+        azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp create \
+            --name $(BACKEND_APP_NAME) \
+            --resource-group $(RESOURCE_GROUP) \
+            --image backend:latest \
+            --environment $(CONTAINER_ENV) \
+            --ingress external \
+            --target-port 8080
+    
+    - task: AzureCLI@2
+      displayName: 'Deploy Frontend to Azure'
+      inputs:
+        azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp create \
+            --name $(FRONTEND_APP_NAME) \
+            --resource-group $(RESOURCE_GROUP) \
+            --image frontend:latest \
+            --environment $(CONTAINER_ENV) \
+            --ingress external \
+            --target-port 8000
