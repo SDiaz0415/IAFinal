@@ -12,7 +12,6 @@ variables:
   ollamaImageName: 'ollama/ollama'  # Imagen oficial de Ollama
   aksClusterName: 'mi-cluster-aks'
   resourceGroup: 'grupo-k8s'
-  aksServiceConnection: 'KubernetesServiceConnection'  # Nombre dinámico de la conexión
 
 stages:
 - stage: BuildAndPush
@@ -74,24 +73,19 @@ stages:
           az aks create --resource-group $(resourceGroup) --name $(aksClusterName) --node-count 2 --generate-ssh-keys
 
     - task: AzureCLI@2
-      displayName: "Create Kubernetes Service Connection"
+      displayName: "Configure kubectl"
       inputs:
         azureSubscription: 'AzureServiceConnection'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          KUBE_CONFIG=$(az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName) --admin --overwrite-existing --file -)
-          echo "$KUBE_CONFIG" > kubeconfig
-          echo "##vso[task.setvariable variable=KUBECONFIG]$(pwd)/kubeconfig"
+          az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName) --admin
+          kubectl config current-context
 
-    - task: KubernetesManifest@1
-      displayName: "Deploy to AKS"
+    - task: Kubernetes@1
+      displayName: "Deploy to AKS using kubectl"
       inputs:
-        action: 'deploy'
-        kubernetesServiceConnection: $(aksServiceConnection)
-        namespace: 'default'
-        manifests: |
-          k8s/ollama-deployment.yaml
-          k8s/backend-deployment.yaml
-          k8s/frontend-deployment.yaml
-          k8s/service.yaml
+        connectionType: 'None'  # No usamos una conexión manual, sino la credencial obtenida
+        command: 'apply'
+        arguments: '-f k8s/'
+
