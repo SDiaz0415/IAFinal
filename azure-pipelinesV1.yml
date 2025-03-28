@@ -1,0 +1,111 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerHubServiceConnection: 'DockerHubConnection'
+  dockerHubUsername: 'sdiaz15'
+  backendImageName: 'sdiaz15/backend'
+  frontendImageName: 'sdiaz15/frontend'
+  ollamaImageName: 'ollama/ollama'  # Imagen oficial de Ollama
+  aksClusterName: 'mi-cluster-aks'
+  resourceGroup: 'grupo-k8s'
+  aksServiceConnection: 'KubernetesServiceConnection'  # Nombre dinámico de la conexión
+
+stages:
+- stage: BuildAndPush
+  displayName: "Build and Push to Docker Hub"
+  jobs:
+  - job: Build
+    displayName: "Build Docker Images"
+    steps:
+    - task: Docker@2
+      displayName: "Login to Docker Hub"
+      inputs:
+        command: login
+        containerRegistry: $(dockerHubServiceConnection)
+
+    - task: Docker@2
+      displayName: "Build Backend Image"
+      inputs:
+        command: build
+        Dockerfile: backend/Dockerfile
+        repository: $(backendImageName)
+        tags: latest
+
+    - task: Docker@2
+      displayName: "Build Frontend Image"
+      inputs:
+        command: build
+        Dockerfile: frontend/Dockerfile
+        repository: $(frontendImageName)
+        tags: latest
+
+    - task: Docker@2
+      displayName: "Push Backend Image to Docker Hub"
+      inputs:
+        command: push
+        repository: $(backendImageName)
+        tags: latest
+
+    - task: Docker@2
+      displayName: "Push Frontend Image to Docker Hub"
+      inputs:
+        command: push
+        repository: $(frontendImageName)
+        tags: latest
+
+- stage: DeployToAKS
+  displayName: "Deploy to AKS"
+  jobs:
+  - job: Deploy
+    displayName: "Deploy to Azure Kubernetes Service"
+    steps:
+    - task: AzureCLI@2
+      displayName: "Get AKS Credentials"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Obtener credenciales de AKS
+          az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
+
+    - task: KubernetesManifest@1
+      displayName: "Deploy Backend to AKS"
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/backend-deployment.yaml
+
+    - task: KubernetesManifest@1
+      displayName: "Deploy Frontend to AKS"
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/frontend-deployment.yaml
+
+    - task: KubernetesManifest@1
+      displayName: "Deploy Ollama to AKS"
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/ollama-deployment.yaml
+
+    - task: KubernetesManifest@1
+      displayName: "Deploy Services to AKS"
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: $(aksServiceConnection)
+        namespace: 'default'
+        manifests: |
+          k8s/service.yaml
+

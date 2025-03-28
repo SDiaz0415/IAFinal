@@ -17,6 +17,9 @@ spec:
         image: ollama/ollama
         ports:
         - containerPort: 11434
+        command: ["/bin/sh", "-c"]
+        args:
+          - "ollama pull mistral:latest; exec ollama run mistral"
         volumeMounts:
         - name: ollama-data
           mountPath: /root/.ollama
