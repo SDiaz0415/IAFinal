@@ -6,6 +6,7 @@ pool:
 
 variables:
   dockerHubServiceConnection: 'DockerHubConnection'
+  aksServiceConnection: 'AzureKubernetesServiceConnection'
   dockerHubUsername: 'sdiaz15'
   backendImageName: 'sdiaz15/backend'
   frontendImageName: 'sdiaz15/frontend'
