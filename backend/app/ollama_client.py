@@ -6,7 +6,10 @@ from .image_utils import image_to_base64
 
 class OllamaClient(LLMClientBase):
     def __init__(self, model_name, *args, **kwargs):
-        self.ollama_client = ollama.Client()
+        # self.ollama_client = ollama.Client() #for Local
+        self.ollama_client = ollama.Client(host="http://ollama:11434")  # Especificar la URL del contenedor de Ollama Docker
+
+
         super().__init__(model_name, *args, **kwargs)
         self.system_instruction =kwargs.get("system_instruction", None)
         self.message_queue = []

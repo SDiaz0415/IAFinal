@@ -10,6 +10,9 @@ COPY . .
 # Instala UV y las dependencias del proyecto
 RUN pip install uv && uv pip install 
 
+# Instalar dependencias con UV
+RUN uv sync
+
 # Expone el puerto en el que se ejecuta Chainlit
 EXPOSE 8000
 

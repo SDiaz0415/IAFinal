@@ -10,6 +10,9 @@ COPY . .
 # Instala UV y dependencias desde pyproject.toml
 RUN pip install uv && uv pip install -e .
 
+# Instalar dependencias con UV
+RUN uv sync
+
 # Exponer el puerto del backend
 EXPOSE 8080
 

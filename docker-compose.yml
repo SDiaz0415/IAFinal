@@ -6,16 +6,13 @@ services:
     container_name: ollama_container
     restart: always
     ports:
-      - "11434:11434"  # Puerto de Ollama
+      - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama  # Persistencia de modelos
-    entrypoint: ["/bin/sh", "-c"]  
-    command:
-      - |
-        ollama serve &  # Inicia Ollama en segundo plano
-        sleep 5  # Espera un poco para asegurar que el servidor esté activo
-        ollama pull mistral:latest  # Descarga el modelo si no está disponible
-        tail -f /dev/null  # Mantiene el contenedor activo
+    command: >
+      sh -c "
+        ollama pull mistral:latest && 
+        ollama run mistral"
 
   backend:
     build: ./backend
@@ -33,13 +30,13 @@ services:
     build: ./frontend
     container_name: frontend_container
     ports:
-      - "8000:8000"  # Exponer el puerto de Chainlit
+      - "8000:8000"
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
-
-
+    environment:
+      - API_URL=http://backend:8080/predict  # Usar la URL del backend en Docker
 
 volumes:
   ollama_data:
