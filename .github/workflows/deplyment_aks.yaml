@@ -1,0 +1,32 @@
+name: Create AKS Cluster
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando hay cambios en la rama main
+  workflow_dispatch:  # Permite ejecutarlo manualmente
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  create-aks:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Crear AKS
+      run: |
+        az aks create \
+          --resource-group grupo-k8s \
+          --name mi-cluster-aks \
+          --node-count 1 \
+          --node-vm-size Standard_D4s_v3 \
+          --enable-addons monitoring \
+          --generate-ssh-keys
