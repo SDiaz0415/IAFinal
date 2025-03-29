@@ -1,142 +1,56 @@
-# Actualizado para eliminar set-output obsoleto
-trigger:
-- main  # Se ejecuta cuando hay cambios en la rama main
+name: Deploy AKS and Services Manually
 
-pool:
-  vmImage: 'ubuntu-latest'
+on:
+  workflow_dispatch:  # Se ejecuta manualmente
 
-variables:
-  resourceGroup: 'grupo-k8s'
-  aksClusterName: 'mi-cluster-aks'
-  nodeCount: 1
-  nodeSize: 'Standard_D4s_v3'
-
-stages:
-- stage: CreateAKS
-  displayName: "Crear AKS en Azure"
-  jobs:
-  - job: CreateCluster
-    displayName: "Crear Cluster AKS"
+jobs:
+  create-aks:
+    runs-on: ubuntu-latest
     steps:
-    - task: AzureCLI@2
-      displayName: "Verificar si AKS existe"
-      inputs:
-        azureSubscription: 'AzureServiceConnection'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          EXISTE=$(az aks show --resource-group $(resourceGroup) --name $(aksClusterName) --query "name" -o tsv || echo "")
-          if [[ -z "$EXISTE" ]]; then
-            echo "AKS no existe, se procederá a crearlo"
-            echo "AKS_EXISTS=false" >> $GITHUB_ENV
-          else
-            echo "AKS ya existe, se omite la creación"
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Check if AKS Exists
+        id: check-aks
+        run: |
+          if az aks show --name mi-cluster-aks --resource-group grupo-k8s &>/dev/null; then
             echo "AKS_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "AKS_EXISTS=false" >> $GITHUB_ENV
           fi
-    
-    - task: AzureCLI@2
-      displayName: "Crear AKS si no existe"
-      condition: eq(variables.AKS_EXISTS, 'false')
-      inputs:
-        azureSubscription: 'AzureServiceConnection'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az aks create \
-            --resource-group $(resourceGroup) \
-            --name $(aksClusterName) \
-            --node-count $(nodeCount) \
-            --node-vm-size $(nodeSize) \
-            --enable-addons monitoring \
+
+      - name: Create AKS Cluster (if not exists)
+        if: env.AKS_EXISTS == 'false'
+        run: |
+          az aks create --resource-group grupo-k8s --name mi-cluster-aks \
+            --node-count 1 --node-vm-size Standard_D4s_v3 --enable-addons monitoring \
             --generate-ssh-keys
-          echo "AKS_READY=true" >> $GITHUB_ENV
 
-    - task: AzureCLI@2
-      displayName: "Esperar a que AKS esté listo"
-      condition: eq(variables.AKS_READY, 'true')
-      inputs:
-        azureSubscription: 'AzureServiceConnection'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          echo "Esperando a que el cluster esté listo..."
-          az aks wait --resource-group $(resourceGroup) --name $(aksClusterName) --created
+      - name: Get AKS Credentials
+        run: az aks get-credentials --resource-group grupo-k8s --name mi-cluster-aks
 
-- stage: DeployOllama
-  displayName: "Desplegar Ollama"
-  jobs:
-  - job: DeployOllamaContainer
-    displayName: "Desplegar Ollama"
-    steps:
-    - task: Kubernetes@1
-      displayName: "Desplegar Ollama"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'AzureServiceConnection'
-        azureResourceGroup: '$(resourceGroup)'
-        kubernetesCluster: '$(aksClusterName)'
-        namespace: 'default'
-        command: 'apply'
-        arguments: '-f k8s/ollama-deployment.yaml'
-    
-    - task: AzureCLI@2
-      displayName: "Esperar despliegue de Ollama"
-      inputs:
-        azureSubscription: 'AzureServiceConnection'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          echo "Esperando a que Ollama esté en ejecución..."
-          kubectl rollout status deployment/ollama-deployment -n default
-          echo "OLLAMA_READY=true" >> $GITHUB_ENV
-    
-    - task: AzureCLI@2
-      displayName: "Ejecutar Ollama Pull"
-      condition: eq(variables.OLLAMA_READY, 'true')
-      inputs:
-        azureSubscription: 'AzureServiceConnection'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          POD_NAME=$(kubectl get pods -n default -l app=ollama -o jsonpath="{.items[0].metadata.name}")
-          kubectl exec -n default $POD_NAME -- ollama pull mistral:latest
+      - name: Deploy Ollama
+        run: kubectl apply -f k8s/ollama-deployment.yaml
 
-- stage: DeployBackendFrontend
-  displayName: "Desplegar Backend y Frontend"
-  dependsOn: DeployOllama
-  jobs:
-  - job: DelayBeforeDeploy
-    displayName: "Esperar 2 minutos antes de continuar"
-    steps:
-    - script: sleep 120
-      displayName: "Esperando..."
+      - name: Wait for Ollama to be ready
+        run: |
+          echo "Waiting for Ollama pod to be ready..."
+          kubectl wait --for=condition=available --timeout=300s deployment/ollama
 
-  - job: DeployBackend
-    displayName: "Desplegar Backend"
-    dependsOn: DelayBeforeDeploy
-    steps:
-    - task: Kubernetes@1
-      displayName: "Desplegar Backend"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'AzureServiceConnection'
-        azureResourceGroup: '$(resourceGroup)'
-        kubernetesCluster: '$(aksClusterName)'
-        namespace: 'default'
-        command: 'apply'
-        arguments: '-f k8s/backend-deployment.yaml'
+      - name: Pull Mistral model in Ollama
+        run: |
+          POD_NAME=$(kubectl get pods -l app=ollama -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec $POD_NAME -- ollama pull mistral:latest
 
-  - job: DeployFrontend
-    displayName: "Desplegar Frontend"
-    dependsOn: DelayBeforeDeploy
-    steps:
-    - task: Kubernetes@1
-      displayName: "Desplegar Frontend"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'AzureServiceConnection'
-        azureResourceGroup: '$(resourceGroup)'
-        kubernetesCluster: '$(aksClusterName)'
-        namespace: 'default'
-        command: 'apply'
-        arguments: '-f k8s/frontend-deployment.yaml'
+      - name: Delay to Ensure Ollama is Ready
+        run: sleep 60
+
+      - name: Deploy Backend
+        run: kubectl apply -f k8s/backend-deployment.yaml
+
+      - name: Deploy Frontend
+        run: kubectl apply -f k8s/frontend-deployment.yaml
