@@ -18,9 +18,25 @@ stages:
     displayName: "Crear Cluster AKS"
     steps:
     - task: AzureCLI@2
-      displayName: "Crear AKS"
+      displayName: "Verificar si AKS ya existe"
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # Reemplaza con tu conexión a Azure
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          if az aks show --name $(aksClusterName) --resource-group $(resourceGroup) &>/dev/null; then
+            echo "AKS ya existe, no es necesario crearlo."
+            echo "##vso[task.setvariable variable=aksExists]true"
+          else
+            echo "AKS no existe, se procederá a crearlo."
+            echo "##vso[task.setvariable variable=aksExists]false"
+          fi
+
+    - task: AzureCLI@2
+      displayName: "Crear AKS si no existe"
+      condition: eq(variables['aksExists'], 'false')
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -31,3 +47,101 @@ stages:
             --node-vm-size $(nodeSize) \
             --enable-addons monitoring \
             --generate-ssh-keys
+
+    - task: AzureCLI@2
+      displayName: "Esperar hasta que el AKS esté completamente desplegado"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Esperando a que el AKS esté completamente desplegado..."
+          while true; do
+            STATUS=$(az aks show --name $(aksClusterName) --resource-group $(resourceGroup) --query "provisioningState" -o tsv)
+            POWER=$(az aks show --name $(aksClusterName) --resource-group $(resourceGroup) --query "powerState.code" -o tsv)
+            
+            if [[ "$STATUS" == "Succeeded" && "$POWER" == "Running" ]]; then
+              echo "AKS está completamente operativo."
+              break
+            else
+              echo "AKS aún no está listo. Estado: $STATUS, Power: $POWER"
+              sleep 20
+            fi
+          done
+
+- stage: DeployK8s
+  displayName: "Desplegar en Kubernetes"
+  dependsOn: CreateAKS
+  jobs:
+  - job: DeployOllama
+    displayName: "Desplegar Ollama y descargar modelo"
+    steps:
+    - task: AzureCLI@2
+      displayName: "Obtener credenciales de AKS"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
+
+    - task: Kubernetes@1
+      displayName: "Desplegar Ollama"
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'KubernetesConnection'
+        command: 'apply'
+        arguments: '-f k8s/ollama-deployment.yaml'
+
+    - task: AzureCLI@2
+      displayName: "Esperar a que Ollama esté listo"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          while [[ $(kubectl get pods -l app=ollama -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
+            echo "Esperando a que el pod de Ollama esté listo..."
+            sleep 10
+          done
+          echo "Ollama está listo."
+
+    - task: AzureCLI@2
+      displayName: "Descargar modelo Mistral en Ollama"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          OLLAMA_POD=$(kubectl get pod -l app=ollama -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec -it $OLLAMA_POD -- ollama pull mistral:latest
+
+    - task: AzureCLI@2
+      displayName: "Esperar antes de desplegar los demás servicios"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Esperando 60 segundos antes de desplegar backend y frontend..."
+          sleep 60
+
+  - job: DeployBackendFrontend
+    displayName: "Desplegar Backend y Frontend"
+    dependsOn: DeployOllama
+    steps:
+    - task: Kubernetes@1
+      displayName: "Desplegar Backend"
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'KubernetesConnection'
+        command: 'apply'
+        arguments: '-f k8s/backend-deployment.yaml'
+
+    - task: Kubernetes@1
+      displayName: "Desplegar Frontend"
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'KubernetesConnection'
+        command: 'apply'
+        arguments: '-f k8s/frontend-deployment.yaml'

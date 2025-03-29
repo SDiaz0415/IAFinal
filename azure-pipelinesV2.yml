@@ -1,0 +1,33 @@
+trigger:
+- main  # Se ejecuta cuando hay cambios en la rama main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  resourceGroup: 'grupo-k8s'
+  aksClusterName: 'mi-cluster-aks'
+  nodeCount: 1
+  nodeSize: 'Standard_D4s_v3'
+
+stages:
+- stage: CreateAKS
+  displayName: "Crear AKS en Azure"
+  jobs:
+  - job: CreateCluster
+    displayName: "Crear Cluster AKS"
+    steps:
+    - task: AzureCLI@2
+      displayName: "Crear AKS"
+      inputs:
+        azureSubscription: 'AzureServiceConnection'  # Reemplaza con tu conexión a Azure
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az aks create \
+            --resource-group $(resourceGroup) \
+            --name $(aksClusterName) \
+            --node-count $(nodeCount) \
+            --node-vm-size $(nodeSize) \
+            --enable-addons monitoring \
+            --generate-ssh-keys
