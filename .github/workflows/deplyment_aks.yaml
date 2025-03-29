@@ -1,12 +1,18 @@
-name: Deploy AKS and Services Manually
+name: Deploy AKS
 
 on:
-  workflow_dispatch:  # Se ejecuta manualmente
+  workflow_dispatch:
+
+permissions:
+  id-token: write  # NECESARIO para el login en Azure
 
 jobs:
-  create-aks:
+  deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -17,40 +23,39 @@ jobs:
       - name: Check if AKS Exists
         id: check-aks
         run: |
-          if az aks show --name mi-cluster-aks --resource-group grupo-k8s &>/dev/null; then
-            echo "AKS_EXISTS=true" >> $GITHUB_ENV
+          if az aks show --resource-group grupo-k8s --name mi-cluster-aks &> /dev/null; then
+            echo "AKS cluster already exists. Skipping creation."
+            echo "EXISTS=true" >> $GITHUB_ENV
           else
-            echo "AKS_EXISTS=false" >> $GITHUB_ENV
+            echo "AKS cluster does not exist. Proceeding with creation."
+            echo "EXISTS=false" >> $GITHUB_ENV
           fi
 
-      - name: Create AKS Cluster (if not exists)
-        if: env.AKS_EXISTS == 'false'
+      - name: Create AKS Cluster
+        if: env.EXISTS == 'false'
         run: |
           az aks create --resource-group grupo-k8s --name mi-cluster-aks \
-            --node-count 1 --node-vm-size Standard_D4s_v3 --enable-addons monitoring \
-            --generate-ssh-keys
+            --node-count 1 --node-vm-size Standard_D4s_v3 \
+            --enable-addons monitoring --generate-ssh-keys
 
       - name: Get AKS Credentials
-        run: az aks get-credentials --resource-group grupo-k8s --name mi-cluster-aks
+        run: |
+          az aks get-credentials --resource-group grupo-k8s --name mi-cluster-aks
 
       - name: Deploy Ollama
-        run: kubectl apply -f k8s/ollama-deployment.yaml
-
-      - name: Wait for Ollama to be ready
         run: |
-          echo "Waiting for Ollama pod to be ready..."
-          kubectl wait --for=condition=available --timeout=300s deployment/ollama
+          kubectl apply -f k8s/ollama-deployment.yaml
 
-      - name: Pull Mistral model in Ollama
+      - name: Wait for Ollama Pod to be Ready
         run: |
-          POD_NAME=$(kubectl get pods -l app=ollama -o jsonpath="{.items[0].metadata.name}")
-          kubectl exec $POD_NAME -- ollama pull mistral:latest
+          echo "Waiting for Ollama container to be ready..."
+          kubectl wait --for=condition=ready pod -l app=ollama --timeout=300s
 
-      - name: Delay to Ensure Ollama is Ready
-        run: sleep 60
+      - name: Pull Ollama Model
+        run: |
+          kubectl exec -it $(kubectl get pod -l app=ollama -o jsonpath="{.items[0].metadata.name}") -- ollama pull mistral:latest
 
-      - name: Deploy Backend
-        run: kubectl apply -f k8s/backend-deployment.yaml
-
-      - name: Deploy Frontend
-        run: kubectl apply -f k8s/frontend-deployment.yaml
+      - name: Deploy Backend & Frontend
+        run: |
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/frontend-deployment.yaml
