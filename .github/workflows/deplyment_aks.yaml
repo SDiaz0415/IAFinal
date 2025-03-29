@@ -18,7 +18,20 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Crear AKS
+    - name: Verificar si el AKS ya existe
+      id: check-aks
+      run: |
+        AKS_EXISTS=$(az aks show --resource-group grupo-k8s --name mi-cluster-aks --query "name" -o tsv || echo "")
+        if [ -n "$AKS_EXISTS" ]; then
+          echo "AKS ya existe."
+          echo "::set-output name=aks_exists::true"
+        else
+          echo "AKS no existe. Se procederá a crearlo."
+          echo "::set-output name=aks_exists::false"
+        fi
+
+    - name: Crear AKS si no existe
+      if: steps.check-aks.outputs.aks_exists == 'false'
       run: |
         az aks create \
           --resource-group grupo-k8s \
@@ -27,3 +40,35 @@ jobs:
           --node-vm-size Standard_D4s_v3 \
           --enable-addons monitoring \
           --generate-ssh-keys
+
+    - name: Esperar hasta que el AKS esté listo
+      run: |
+        echo "Esperando a que el clúster AKS esté listo..."
+        az aks wait --resource-group grupo-k8s --name mi-cluster-aks --created
+
+    - name: Configurar kubectl
+      run: |
+        az aks get-credentials --resource-group grupo-k8s --name mi-cluster-aks
+
+    - name: Desplegar Ollama en Kubernetes
+      run: |
+        kubectl apply -f k8s/ollama-deployment.yaml
+
+    - name: Esperar a que Ollama esté listo
+      run: |
+        echo "Esperando a que Ollama esté en ejecución..."
+        kubectl rollout status deployment/ollama-deployment -n default
+
+    - name: Ejecutar Ollama pull
+      run: |
+        kubectl exec -it $(kubectl get pod -l app=ollama -o jsonpath="{.items[0].metadata.name}") -- ollama pull mistral:latest
+
+    - name: Delay antes de otros despliegues
+      run: |
+        echo "Esperando 2 minutos antes de continuar..."
+        sleep 120
+
+    - name: Desplegar Backend y Frontend
+      run: |
+        kubectl apply -f k8s/backend-deployment.yaml
+        kubectl apply -f k8s/frontend-deployment.yaml
