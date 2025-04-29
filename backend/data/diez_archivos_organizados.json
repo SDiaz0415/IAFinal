@@ -1,0 +1,1930 @@
+[
+  {
+    "archivo": "F41641223.pdf",
+    "metadata": {
+      "empresa": "IME Ingeniería de Máquinas Eléctricas",
+      "codigo_documento": "PROPR11F07",
+      "version": "10",
+      "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+      "vigencia": "2023-03-13",
+      "paginas": "1 de 6"
+    },
+    "informacion_general": {
+      "fecha_informe": "2023-12-07",
+      "orden_produccion": "F4164",
+      "fecha_ingreso": "2023-11-02",
+      "cliente": {
+        "nombre": "AMCOR FLEXIBLES CALI SAS",
+        "orden_cliente": "900483014"
+      },
+      "fecha_entrega": "04/12/23",
+      "equipo": {
+        "tipo": "BLOWER",
+        "identificacion": "F4164"
+      }
+    },
+    "datos_placa": {
+      "marca": "No informado (N.I)",
+      "potencia": {
+        "valor": "0.30",
+        "unidad": "KW"
+      },
+      "caracteristicas_electricas": {
+        "frecuencia": "60 Hz",
+        "fases": "3",
+        "tension": "220 - 440 V",
+        "corriente": "1.4 - 0.7 Amp",
+        "clase_aislamiento": "H",
+        "temperatura_maxima": "180°C"
+      },
+      "caracteristicas_mecanicas": {
+        "rpm": "2800",
+        "frame": "No informado (N.I)",
+        "proteccion": "IP 0"
+      },
+      "identificacion": {
+        "serie": "No informado (N.I)",
+        "maquina_asociada": "COEXTRUSORA MACCHI"
+      }
+    },
+    "servicio": {
+      "tipo": "REPARACION-BOBINADO",
+      "descripcion": "SERVICIO REPARACION - BOBINADO DE MOTOR BLOWER DE 0.30 KW A 2800 RPM",
+      "procedimientos": [
+        "DESARMADO",
+        "REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADO ESCUDO L.C. Y L.V.",
+        "BALANCEO DINAMICO EN CONJUNTO"
+      ],
+      "diagnostico_falla": {
+        "tipo": "SOBRECARGA",
+        "descripcion": "Motor presentaba falla por sobrecarga"
+      }
+    },
+    "repuestos": [
+      {
+        "tipo": "Rodamiento",
+        "referencia": "6000 2RS C3",
+        "marca": "SKF",
+        "cantidad": 2
+      }
+    ],
+    "pruebas": {
+      "electricas": {
+        "aislamiento_tierra": {
+          "equipo": "Megohmetro Digital 1060",
+          "tension_prueba": "500 Vdc",
+          "resistencia": "7.5 GΩ",
+          "estandar": {
+            "alambre_redondo": "Mínimo 5MΩ",
+            "alambre_rectangular": "Mínimo 100MΩ"
+          }
+        },
+        "alta_tension": {
+          "equipo": "Hipot Equipo Baker",
+          "tension_prueba": "2050 Vdc",
+          "resultado": "Pasó",
+          "estandar": "1.7 (2Vn+1000) para equipos nuevos/rebobinados"
+        },
+        "impulso": {
+          "equipo": "Surge Equipo Baker",
+          "tension_prueba": "1850 Vdc",
+          "resultados": {
+            "fase_I": "OK",
+            "fase_II": "OK",
+            "fase_III": "OK"
+          }
+        },
+        "vacio": {
+          "equipo": "Transformador tensión de 30 a 550Vac máx.",
+          "parametros": [
+            {
+              "fase": "I",
+              "tension": "447 V",
+              "corriente": "0.5 A"
+            },
+            {
+              "fase": "II",
+              "tension": "445 V",
+              "corriente": "0.4 A"
+            },
+            {
+              "fase": "III",
+              "tension": "453 V",
+              "corriente": "0.5 A"
+            }
+          ],
+          "velocidad_prueba": "3600 RPM"
+        }
+      },
+      "mecanicas": {
+        "vibracion": {
+          "equipo": "Ultraspect 8000",
+          "parametros": [
+            {
+              "ubicacion": "Escudo LC",
+              "diametro": "26 mm",
+              "ajuste_inicial": "-",
+              "ajuste_final": "+0.01 mm",
+              "rango_aceptable": "0.00/0.027 mm"
+            },
+            {
+              "ubicacion": "Escudo LV",
+              "diametro": "26 mm",
+              "ajuste_inicial": "-",
+              "ajuste_final": "+0.01 mm",
+              "rango_aceptable": "0.00/0.027 mm"
+            }
+          ]
+        },
+        "ajustes": [
+          {
+            "ubicacion": "Eje LC",
+            "diametro": "10 mm",
+            "ajuste_inicial": "0.00 mm",
+            "ajuste_final": "0.00 mm",
+            "rango_aceptable": "0.00/0.03 mm"
+          },
+          {
+            "ubicacion": "Eje LV",
+            "diametro": "10 mm",
+            "ajuste_inicial": "0.00 mm",
+            "ajuste_final": "0.00 mm",
+            "rango_aceptable": "0.00/0.03 mm"
+          }
+        ],
+        "valores_referencia": "NEMA STD MG1-7.08 (3600/1800/1200RPM)"
+      },
+      "temperatura": {
+        "equipo": "Termómetro digital Fluke 62",
+        "lecturas": {
+          "rodamiento_LC": "28 °C",
+          "carcasa": "29 °C",
+          "rodamiento_LV": "No medida"
+        },
+        "limites": {
+          "motores_<1800rpm": {
+            "estator": "<50°C",
+            "escudo": "<45°C",
+            "eje": "<55°C"
+          },
+          "motores_>1800rpm": {
+            "estator": "<60°C",
+            "escudo": "<65°C",
+            "eje": "<55°C"
+          }
+        }
+      },
+      "indice_polarizacion": {
+        "realizada": false,
+        "motivo": "Solo para motores entre 2300/6900 V"
+      }
+    },
+    "recomendaciones": {
+      "especificas": "REALIZAR VERIFICACION DE LA CARGA EN EL MOTOR, MEDIANTE RUTAS DE EXPLORER 4000 EN DONDE SE VERIFICA CARGA DE FUNCIONAMIENTO, BALANCEO DE VOLTAJES, CORRIENTES, ETC.",
+      "generales": {
+        "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "conexiones": [
+          "Revise instalación eléctrica",
+          "Verifique sistema de protección",
+          "Prueba de aislamiento con Megger",
+          "Verifique conexión a tierra",
+          "Verifique tensión de trabajo"
+        ],
+        "montaje": [
+          "Use herramientas adecuadas",
+          "Correcto anclaje y alineación",
+          "Alineación con equipo láser",
+          "Balanceo de carga"
+        ],
+        "operacion": [
+          "Verifique sentido de giro",
+          "Inspeccione lubricación",
+          "Mantenga rutas de lubricación",
+          "Mediciones periódicas"
+        ],
+        "almacenamiento": [
+          "Lugar cerrado y libre de humedad",
+          "Rotar eje mensualmente si almacenamiento prolongado"
+        ]
+      }
+    },
+    "firmas": {
+      "responsable": {
+        "nombre": "JIMENEZ CAMILO LUIS ADOLFO",
+        "matricula": "94519543",
+        "titulo": "Técnico Electricista",
+        "organismo": "Consejo Nacional de Técnicos Electricistas",
+        "direccion": "Calle 56 No. 5N126"
+      },
+      "fecha_firma": "12 de Diciembre de 2023",
+      "ubicacion": "Cali"
+    },
+    "normativas": [
+      {
+        "codigo": "EASA AR-100",
+        "version": "2015",
+        "descripcion": "Practica recomendada para la reparación de máquinas eléctricas rotativas"
+      },
+      {
+        "codigo": "IEEE 43",
+        "version": "2013",
+        "descripcion": "Recommended practice for testing insulation resistance of electric machinery"
+      },
+      {
+        "codigo": "NEMA STD MG1",
+        "version": "2014",
+        "descripcion": "Motors And Generators"
+      },
+      {
+        "codigo": "RETIE",
+        "version": "2013",
+        "articulo": "numeral 20.21",
+        "descripcion": "Motores y Generadores"
+      },
+      {
+        "codigo": "IEC 60034-5",
+        "descripcion": "Maquinas Eléctricas Rotativas. Grados de protección"
+      }
+    ],
+    "limitaciones": [
+      "Motores de Alta tensión (2300V, 4160V) se prueban con tensión reducida",
+      "Pruebas realizadas en vacío",
+      "Verificación de eficiencia energética requiere operación a full carga",
+      "Grado de protección (IP) no verificado - responsabilidad del fabricante"
+    ],
+    "verificacion_placa": {
+      "resultado": "El motor cumple con las especificaciones de la placa características",
+      "metodo": "Verificaciones y cálculos basados en pruebas realizadas"
+    },
+    "observaciones": {
+      "fotos": {
+        "antes": "Disponible",
+        "despues": "Disponible"
+      },
+      "notas": "No se registran observaciones adicionales"
+    }
+  },
+  {
+    "archivo": "F44730324.pdf",
+    "metadata": {
+      "empresa": "IME Ingeniería de Máquinas Eléctricas",
+      "codigo_documento": "PROPR11F07",
+      "version": "10",
+      "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+      "vigencia": "2023-03-13",
+      "paginas": "1 de 7"
+    },
+    "informacion_general": {
+      "fecha_informe": "2024-03-05",
+      "orden_produccion": "F4473",
+      "fecha_ingreso": "2024-01-04",
+      "cliente": {
+        "nombre": "FAMILIA DEL PACIFICO SAS",
+        "orden_cliente": "817000680"
+      },
+      "fecha_entrega": "05/03/24",
+      "equipo": {
+        "tipo": "MOTOR",
+        "identificacion": "G04016"
+      }
+    },
+    "datos_placa": {
+      "marca": "REPUBLIC",
+      "potencia": {
+        "valor": "15.00",
+        "unidad": "HP"
+      },
+      "caracteristicas_electricas": {
+        "frecuencia": "60 Hz",
+        "fases": "3",
+        "tension": "230 - 460 V",
+        "corriente": "40 - 20 Amp",
+        "clase_aislamiento": "No especificada"
+      },
+      "caracteristicas_mecanicas": {
+        "rpm": "3600",
+        "frame": "No informado (N.I)",
+        "proteccion": "IP 0"
+      },
+      "identificacion": {
+        "serie": "No informado (N.I)",
+        "maquina_asociada": "AGUA DOMESTICA PTAR"
+      }
+    },
+    "servicio": {
+      "tipo": "MANTENIMIENTO",
+      "descripcion": "MANTENIMIENTO DE MOTOR 15 HP A 3600 RPM CON # DE SALIDA 70764",
+      "procedimientos": [
+        "DESARMADO, LAVADO, SECADO Y REBARNIZADO DE ESTATOR",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADA DE ESCUDO L.V.",
+        "FABRICACION DE BOCIN",
+        "FABRICACION DE FILTROS",
+        "FABRICACION DE EMPAQUES",
+        "BALANCEO DINAMICO EN CONJUNTO"
+      ],
+      "observaciones": "EL CLIENTE DEBE SUMINISTRAR ASPA NUEVA"
+    },
+    "repuestos": [
+      {
+        "tipo": "Rodamiento",
+        "referencia": "6207 ZZ C3",
+        "marca": "SKF",
+        "cantidad": 1
+      },
+      {
+        "tipo": "Rodamiento",
+        "referencia": "6209 ZZ C3",
+        "marca": "SKF",
+        "cantidad": 1
+      },
+      {
+        "tipo": "Retén",
+        "referencia": "45*52*5",
+        "caracteristicas": "AT",
+        "cantidad": 1
+      },
+      {
+        "tipo": "Retén",
+        "referencia": "45*62*7",
+        "caracteristicas": "AT",
+        "cantidad": 1
+      },
+      {
+        "tipo": "O-Ring",
+        "diametro": "100 mm",
+        "espesor": "3 mm",
+        "cantidad": 1
+      }
+    ],
+    "pruebas": {
+      "electricas": {
+        "aislamiento_tierra": {
+          "equipo": "Megohmetro Digital 1060",
+          "tension_prueba": "500 Vdc",
+          "resistencia": "17.7 GΩ",
+          "estandar": {
+            "alambre_redondo": "Mínimo 5MΩ",
+            "alambre_rectangular": "Mínimo 100MΩ"
+          }
+        },
+        "alta_tension": {
+          "equipo": "Hipot Equipo Baker",
+          "tension_prueba": "2070 Vdc",
+          "resultado": "Pasó",
+          "estandar": "1.7 (2Vn+1000) para equipos nuevos/rebobinados"
+        },
+        "impulso": {
+          "equipo": "Surge Equipo Baker",
+          "tension_prueba": "1910 Vdc",
+          "resultados": {
+            "fase_I": "OK",
+            "fase_II": "OK",
+            "fase_III": "OK"
+          }
+        },
+        "vacio": {
+          "equipo": "Transformador tensión de 30 a 550Vac máx.",
+          "parametros": [
+            {
+              "fase": "I",
+              "tension": "N/A",
+              "corriente": "N/A"
+            },
+            {
+              "fase": "II",
+              "tension": "N/A",
+              "corriente": "N/A"
+            },
+            {
+              "fase": "III",
+              "tension": "N/A",
+              "corriente": "N/A"
+            }
+          ],
+          "velocidad_prueba": "N/A RPM"
+        }
+      },
+      "mecanicas": {
+        "vibracion": {
+          "equipo": "Ultraspect 8000",
+          "parametros": [
+            {
+              "ubicacion": "Escudo LC",
+              "diametro": "72 mm",
+              "ajuste_inicial": "BOCIN DESTRUI",
+              "ajuste_final": "+0.01 mm",
+              "rango_aceptable": "0.00/0.027 mm"
+            },
+            {
+              "ubicacion": "Escudo LV",
+              "diametro": "85 mm",
+              "ajuste_inicial": "+0.035 mm",
+              "ajuste_final": "+0.01 mm",
+              "rango_aceptable": "0.00/0.027 mm"
+            }
+          ]
+        },
+        "ajustes": [
+          {
+            "ubicacion": "Eje LC",
+            "diametro": "35 mm",
+            "ajuste_inicial": "-0.01 mm",
+            "ajuste_final": "-0.01 mm",
+            "rango_aceptable": "0.00/0.03 mm"
+          },
+          {
+            "ubicacion": "Eje LV",
+            "diametro": "45 mm",
+            "ajuste_inicial": "0.00 mm",
+            "ajuste_final": "0.00 mm",
+            "rango_aceptable": "0.00/0.03 mm"
+          }
+        ],
+        "valores_referencia": "NEMA STD MG1-7.08 (3600/1800/1200RPM)"
+      },
+      "temperatura": {
+        "equipo": "Termómetro digital Fluke 62",
+        "lecturas": {
+          "rodamiento_LC": "No medida",
+          "carcasa": "No medida",
+          "rodamiento_LV": "No medida"
+        },
+        "limites": {
+          "motores_<1800rpm": {
+            "estator": "<50°C",
+            "escudo": "<45°C",
+            "eje": "<55°C"
+          },
+          "motores_>1800rpm": {
+            "estator": "<60°C",
+            "escudo": "<65°C",
+            "eje": "<55°C"
+          }
+        },
+        "grasa": "N/A"
+      },
+      "indice_polarizacion": {
+        "realizada": false,
+        "motivo": "Solo para motores entre 2300/6900 V"
+      }
+    },
+    "recomendaciones": {
+      "especificas": [
+        "REALIZAR MANTENIMIENTO PREVENTIVO PERIODICO QUE INCLUYA MEDICION DE AISLAMIENTO",
+        "REALIZAR MANTENIMIENTO PREDICTIVO PERIODICO"
+      ],
+      "generales": {
+        "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "conexiones": [
+          "Revise instalación eléctrica",
+          "Verifique sistema de protección",
+          "Prueba de aislamiento con Megger",
+          "Verifique conexión a tierra",
+          "Verifique tensión de trabajo"
+        ],
+        "montaje": [
+          "Use herramientas adecuadas",
+          "Correcto anclaje y alineación",
+          "Alineación con equipo láser",
+          "Balanceo de carga"
+        ],
+        "operacion": [
+          "Verifique sentido de giro",
+          "Inspeccione lubricación",
+          "Mantenga rutas de lubricación",
+          "Mediciones periódicas"
+        ],
+        "almacenamiento": [
+          "Lugar cerrado y libre de humedad",
+          "Rotar eje mensualmente si almacenamiento prolongado"
+        ]
+      }
+    },
+    "firmas": {
+      "responsable": {
+        "nombre": "GONZALEZ PARDO MARIA DEL MAR",
+        "matricula": "1108253665",
+        "titulo": "Técnico Electricista",
+        "organismo": "Consejo Nacional de Técnicos Electricistas",
+        "direccion": "Calle 56 No. 5N126"
+      },
+      "fecha_firma": "05 de Marzo de 2024",
+      "ubicacion": "Cali"
+    },
+    "normativas": [
+      {
+        "codigo": "EASA AR-100",
+        "version": "2015",
+        "descripcion": "Practica recomendada para la reparación de máquinas eléctricas rotativas"
+      },
+      {
+        "codigo": "IEEE 43",
+        "version": "2013",
+        "descripcion": "Recommended practice for testing insulation resistance of electric machinery"
+      },
+      {
+        "codigo": "NEMA STD MG1",
+        "version": "2014",
+        "descripcion": "Motors And Generators"
+      },
+      {
+        "codigo": "RETIE",
+        "version": "2013",
+        "articulo": "numeral 20.21",
+        "descripcion": "Motores y Generadores"
+      },
+      {
+        "codigo": "IEC 60034-5",
+        "descripcion": "Maquinas Eléctricas Rotativas. Grados de protección"
+      }
+    ],
+    "limitaciones": [
+      "Motores de Alta tensión (2300V, 4160V) se prueban con tensión reducida",
+      "Pruebas realizadas en vacío",
+      "Verificación de eficiencia energética requiere operación a full carga",
+      "Grado de protección (IP) no verificado - responsabilidad del fabricante"
+    ],
+    "verificacion_placa": {
+      "resultado": "El motor cumple con las especificaciones de la placa características",
+      "metodo": "Verificaciones y cálculos basados en pruebas realizadas"
+    },
+    "observaciones": {
+      "fotos": {
+        "antes": "Disponible",
+        "despues": "Disponible"
+      },
+      "notas": "No se registran observaciones adicionales"
+    }
+  },
+  {
+    "archivo": "F44840324.pdf",
+    "metadata": {
+      "empresa": "IME Ingeniería de Máquinas Eléctricas",
+      "codigo_documento": "PROPR11F07",
+      "version": "10",
+      "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+      "vigencia": "2023-03-13",
+      "total_paginas": "6"
+    },
+    "informacion_general": {
+      "fecha_informe": "2024-03-01",
+      "orden_produccion": "F4484",
+      "fecha_ingreso": "2024-01-06",
+      "cliente": "FAMILIA DEL PACIFICO SAS",
+      "orden_cliente": "817000680",
+      "fecha_entrega": "28/02/24",
+      "tipo_equipo": "MOTOR"
+    },
+    "datos_placa": {
+      "marca": "WEG",
+      "potencia": "250.00 KW",
+      "frecuencia": "60 Hz",
+      "rpm": "3590",
+      "fases": "3",
+      "serie": "13652130",
+      "tension": "460 V",
+      "grado_proteccion": "IP55",
+      "corriente": "404 Amp",
+      "frame": "315-L02",
+      "maquina_asociada": "COMPRESOR GD T250",
+      "numero_identificacion": "1040927221"
+    },
+    "servicio": {
+      "tipo": "REPARACION-BOBINADO",
+      "descripcion": "SERVICIO REPARACION - BOBINADO DE MOTOR DE 250 KW A 3590 RPM 1377CFM TRABAJOS CONSECUENTES",
+      "trabajos_realizados": [
+        "DESARMADO, REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "SUMINISTRO DE CABLE PARA BOBINADO",
+        "REPARACION DE NUCLEO",
+        "CONSTRUCCION DE EJE EN ACERO 4140",
+        "EMBUJADA DE ESCUDO L.V.",
+        "SUMINISTRO DE VENTILADOR EN ALUMINIO TC 200 Y MAQUINADO",
+        "BALANCEO DINAMICO EN CONJUNTO",
+        "EMBUJADO DE FLANCHE INTERNO LV",
+        "RECTIFICADO DE FLANCHE EXTERIOR LV",
+        "FABRICACION DE AGUJEROS Y CUADRANTES A ESCUDO LV",
+        "FABRICACION DE CUÑA",
+        "RODAMIENTOS REF:6314 C4 - 6314 M C4 VL0241",
+        "SUMINISTRO DE THERMISTORES",
+        "SUMINISTRO DE V-RING ø 70mm",
+        "SUMINISTRO DE CHAVETA PARA EJE DE 70mm"
+      ],
+      "tipo_falla": "CORTO ENTRE ESPIRAS POR ARRASTRE",
+      "recomendaciones": "REALIZAR PERIÓDICAMENTE MANTENIMIENTO GENERAL AL MOTOR PARA REALIZAR CAMBIO DE RODAMIENTOS E INSPECCIÓN DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS"
+    },
+    "repuestos": [
+      "EJE EN ACERO 4140",
+      "VENTILADOR EN ALUMINIO TC 200 Y MAQUINADO",
+      "RODAMIENTOS REF:6314 C4 - 6314 M C4 VL0241",
+      "THERMISTORES",
+      "V-RING ø 70mm"
+    ],
+    "pruebas": {
+      "electricas": {
+        "aislamiento_tierra": {
+          "tension_prueba": "500 Vdc",
+          "resistencia_aislamiento": "7.3 GΩ",
+          "rango_minimo_alambre_redondo": "5 MΩ",
+          "rango_minimo_alambre_rectangular": "100 MΩ"
+        },
+        "alta_tension": {
+          "tension_prueba": "2500 Vdc",
+          "resultado": "Pasó"
+        },
+        "impulso": {
+          "tension_prueba": "2200 Vdc",
+          "resultados": {
+            "fase_I": "OK",
+            "fase_II": "OK",
+            "fase_III": "OK"
+          }
+        },
+        "vacío": {
+          "tensiones": {
+            "fase_I": "142 V",
+            "fase_II": "141 V",
+            "fase_III": "140 V"
+          },
+          "corrientes": {
+            "fase_I": "54.2 A",
+            "fase_II": "57.3 A",
+            "fase_III": "58.6 A"
+          },
+          "velocidad_prueba": "3600 RPM"
+        }
+      },
+      "mecanicas": {
+        "vibraciones": {
+          "valores": {
+            "horizontal": {
+              "inicial": "0.064 in/sec",
+              "final": "0.065 in/sec",
+              "maximo_permitido": "0.15 in/sec"
+            },
+            "vertical": {
+              "inicial": "0.072 in/sec",
+              "final": "0.074 in/sec",
+              "maximo_permitido": "0.15 in/sec"
+            },
+            "axial": {
+              "final": "0.024 in/sec",
+              "maximo_permitido": "0.15 in/sec"
+            }
+          }
+        },
+        "ajustes": {
+          "escudo_LC": {
+            "diametro": "150 mm",
+            "ajuste_inicial": "+0.03 mm",
+            "ajuste_final": "+0.03 mm",
+            "rango_permitido": "0.00/0.027 mm"
+          },
+          "escudo_LV": {
+            "diametro": "150 mm",
+            "ajuste_inicial": "MALO",
+            "ajuste_final": "+0.03 mm",
+            "rango_permitido": "0.00/0.027 mm"
+          },
+          "eje_LC": {
+            "diametro": "70 mm",
+            "ajuste_inicial": "CONSTRUIR",
+            "ajuste_final": "+0.01 mm",
+            "rango_permitido": "0.00/0.03 mm"
+          },
+          "eje_LV": {
+            "diametro": "70 mm",
+            "ajuste_inicial": "CONSTRUIR",
+            "ajuste_final": "+0.02 mm",
+            "rango_permitido": "0.00/0.03 mm"
+          }
+        },
+        "tipo_grasa": "POLIREX"
+      },
+      "temperaturas": {
+        "rodamiento_LC": "31 °C",
+        "carcasa": "32 °C",
+        "rodamiento_LV": "N/A °C",
+        "limites": {
+          "motores_menos_1800_rpm": {
+            "estator": "<50°C",
+            "escudo": "<45°C",
+            "eje": "<55°C"
+          },
+          "motores_mas_1800_rpm": {
+            "estator": "<60°C",
+            "escudo": "<65°C",
+            "eje": "<55°C"
+          }
+        }
+      },
+      "rtds_thermistors": {
+        "rtds_LC": 4,
+        "rtds_LV": 7,
+        "thermistors": {
+          "cantidad": 4,
+          "valor_resistencia": "181 Ω"
+        },
+        "termo_guardas": 2,
+        "heaters": 1
+      },
+      "indice_polarizacion": {
+        "tension_prueba": "No especificada",
+        "escala": {
+          "peligroso": "<1.0",
+          "regular": "1.0-1.5",
+          "cuestionable": "1.5-2.0",
+          "bueno": "2.0-4.0"
+        },
+        "nota": "Se realiza esta prueba solo para motores entre 2300/6900 V"
+      }
+    },
+    "verificacion_placa": "El motor cumple con las especificaciones de la placa características",
+    "recomendaciones_generales": {
+      "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+      "conexiones": [
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo y sistema de arranque"
+      ],
+      "montaje": [
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga"
+      ],
+      "post_energizacion": [
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas de aislamiento y vibraciones"
+      ],
+      "arranque": "Realice análisis de vibración al arranque y seguimientos programados",
+      "almacenamiento": [
+        "Lugar cerrado y libre de humedad",
+        "Para almacenamiento prolongado, rotar eje mensualmente"
+      ]
+    },
+    "declaracion_conformidad": {
+      "responsable": {
+        "nombre": "GONZALEZ PARDO MARIA DEL MAR",
+        "matricula": "1108253665",
+        "entidad": "Consejo Nacional de Técnicos Electricistas"
+      },
+      "normativas": [
+        "EASA AR-100 2015",
+        "IEEE 43 2013",
+        "NEMA STD MG1 2014",
+        "RETIE 2013",
+        "IEC 60034-5"
+      ],
+      "limitaciones": [
+        "Motores de alta tensión se prueban con tensión reducida",
+        "Pruebas realizadas en vacío",
+        "Verificación de eficiencia energética requiere full carga en instalaciones del cliente",
+        "Grado de protección (IP) no se verifica en IME S.A."
+      ],
+      "fecha_firma": "01 de Marzo de 2024",
+      "lugar_firma": "Cali"
+    }
+  },
+  {
+    "archivo": "F47920424.pdf",
+    "metadata": {
+      "empresa": "IME Ingeniería de Máquinas Eléctricas",
+      "codigo_documento": "PROPR11F07",
+      "version": "10",
+      "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+      "vigencia": "2023-03-13",
+      "total_paginas": "6"
+    },
+    "informacion_general": {
+      "fecha_informe": "2024-04-10",
+      "orden_produccion": "F4792",
+      "fecha_ingreso": "2024-03-27",
+      "cliente": "ALIMENTOS CARNICOS S A S",
+      "orden_cliente": "890304130",
+      "fecha_entrega": "28/03/24",
+      "tipo_equipo": "MOTORBLOWER"
+    },
+    "datos_placa": {
+      "marca": "N.I (No Identificada)",
+      "potencia": "2.20 KW",
+      "frecuencia": "60 Hz",
+      "rpm": "2840",
+      "fases": "3",
+      "serie": "3442130098",
+      "tension": "230-460 V",
+      "grado_proteccion": "IP55",
+      "corriente": "7.8-4.4 Amp",
+      "frame": "90L",
+      "maquina_asociada": "VEMAG 1",
+      "numero_identificacion": "3442130098"
+    },
+    "servicio": {
+      "tipo": "MANTENIMIENTO",
+      "descripcion": "SERVICIO MANTENIMIENTO DE MOTORES BLOWERS DESCONGELADOR MOREP",
+      "trabajos_realizados": [
+        "DESARMADO, LAVADO, SECADO, REBARNIZADO DE ESTATOR",
+        "PRUEBAS ELÉCTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADO DE ESCUDO L.C. Y L.V.",
+        "SUMINISTRO DE RODAMIENTOS 6208 ZZ C3 MARCA SKF",
+        "BALANCEO DINAMICO EN CONJUNTO"
+      ],
+      "recomendaciones": [
+        "REALIZAR MANTENIMIENTO PREVENTIVO PERIODICO QUE INCLUYA MEDICION DE AISLAMIENTO",
+        "REALIZAR MANTENIMIENTO PREDICTIVO PERIODICO"
+      ]
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamiento_tierra": {
+          "tension_prueba": "500 Vdc",
+          "resistencia_aislamiento": "2.8 GΩ",
+          "rango_minimo_alambre_redondo": "5 MΩ",
+          "rango_minimo_alambre_rectangular": "100 MΩ"
+        },
+        "alta_tension": {
+          "tension_prueba": "2500 Vdc",
+          "resultado": "Pasó"
+        },
+        "impulso": {
+          "tension_prueba": "2000 Vdc",
+          "resultados": {
+            "fase_I": "OK",
+            "fase_II": "OK",
+            "fase_III": "OK"
+          }
+        },
+        "vacío": {
+          "tensiones": {
+            "fase_I": "455 V",
+            "fase_II": "457 V",
+            "fase_III": "455 V"
+          },
+          "corrientes": {
+            "fase_I": "1.5 A",
+            "fase_II": "1.4 A",
+            "fase_III": "1.8 A"
+          },
+          "velocidad_prueba": "3600 RPM"
+        }
+      },
+      "mecanicas": {
+        "vibraciones": {
+          "valores": {
+            "horizontal": {
+              "maximo_permitido": "0.15 in/sec"
+            },
+            "vertical": {
+              "maximo_permitido": "0.15 in/sec"
+            },
+            "axial": {
+              "maximo_permitido": "0.15 in/sec"
+            }
+          }
+        },
+        "ajustes": {
+          "escudo_LC": {
+            "diametro": "52 mm",
+            "ajuste_inicial": "+0.04 mm",
+            "ajuste_final": "+0.01 mm",
+            "rango_permitido": "0.00/0.027 mm"
+          },
+          "escudo_LV": {
+            "diametro": "52 mm",
+            "ajuste_inicial": "+0.02 mm",
+            "ajuste_final": "+0.02 mm",
+            "rango_permitido": "0.00/0.027 mm"
+          },
+          "eje_LC": {
+            "diametro": "25 mm",
+            "ajuste_inicial": "+0.01 mm",
+            "ajuste_final": "+0.01 mm",
+            "rango_permitido": "0.00/0.03 mm"
+          },
+          "eje_LV": {
+            "diametro": "25 mm",
+            "ajuste_inicial": "+0.01 mm",
+            "ajuste_final": "+0.01 mm",
+            "rango_permitido": "0.00/0.03 mm"
+          }
+        },
+        "tipo_grasa": "N/A"
+      },
+      "temperaturas": {
+        "rodamiento_LC": "38 °C",
+        "carcasa": "37 °C",
+        "rodamiento_LV": "N/A °C",
+        "limites": {
+          "motores_menos_1800_rpm": {
+            "estator": "<50°C",
+            "escudo": "<45°C",
+            "eje": "<55°C"
+          },
+          "motores_mas_1800_rpm": {
+            "estator": "<60°C",
+            "escudo": "<65°C",
+            "eje": "<55°C"
+          }
+        }
+      },
+      "rtds_thermistors": {
+        "rtds_LC": 4,
+        "rtds_LV": 7,
+        "thermistors": {
+          "cantidad": 4,
+          "valor_resistencia": "260 Ω"
+        },
+        "termo_guardas": 2,
+        "heaters": 1
+      },
+      "indice_polarizacion": {
+        "tension_prueba": "No especificada",
+        "escala": {
+          "peligroso": "<1.0",
+          "regular": "1.0-1.5",
+          "cuestionable": "1.5-2.0",
+          "bueno": "2.0-4.0"
+        },
+        "nota": "Se realiza esta prueba solo para motores entre 2300/6900 V"
+      }
+    },
+    "verificacion_placa": "El motor cumple con las especificaciones de la placa características",
+    "recomendaciones_generales": {
+      "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+      "conexiones": [
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo y sistema de arranque"
+      ],
+      "montaje": [
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga"
+      ],
+      "post_energizacion": [
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas de aislamiento y vibraciones"
+      ],
+      "arranque": "Realice análisis de vibración al arranque y seguimientos programados",
+      "almacenamiento": [
+        "Lugar cerrado y libre de humedad",
+        "Para almacenamiento prolongado, rotar eje mensualmente"
+      ]
+    },
+    "declaracion_conformidad": {
+      "responsable": {
+        "nombre": "GONZALEZ PARDO MARIA DEL MAR",
+        "matricula": "1108253665",
+        "entidad": "Consejo Nacional de Técnicos Electricistas"
+      },
+      "normativas": [
+        "EASA AR-100 2015",
+        "IEEE 43 2013",
+        "NEMA STD MG1 2014",
+        "RETIE 2013",
+        "IEC 60034-5"
+      ],
+      "limitaciones": [
+        "Motores de alta tensión se prueban con tensión reducida",
+        "Pruebas realizadas en vacío",
+        "Verificación de eficiencia energética requiere full carga en instalaciones del cliente",
+        "Grado de protección (IP) no se verifica en IME S.A."
+      ],
+      "fecha_firma": "10 de Abril de 2024",
+      "lugar_firma": "Cali"
+    }
+  },
+  {
+    "archivo": "F48320424.pdf",
+    "metadata": {
+      "empresa": "IME Ingeniería de Máquinas Eléctricas",
+      "codigo_documento": "PROPR11F07",
+      "version": "10",
+      "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+      "vigencia": "2023-03-13",
+      "total_paginas": "7"
+    },
+    "informacion_general": {
+      "fecha_informe": "2024-04-27",
+      "orden_produccion": "F4832",
+      "fecha_ingreso": "2024-04-03",
+      "cliente": "QUIMPAC DE COLOMBIA SA",
+      "orden_cliente": "890322007",
+      "fecha_entrega": "22/04/24",
+      "tipo_equipo": "MOTOR"
+    },
+    "datos_placa": {
+      "marca": "WEG",
+      "potencia": "20 HP",
+      "frecuencia": "60 Hz",
+      "rpm": "3535",
+      "fases": "3",
+      "serie": "N.I (No Identificada)",
+      "tension": "220/440 V",
+      "grado_proteccion": "IP55",
+      "corriente": "49.8/24.9 AMP",
+      "frame": "160 M",
+      "maquina_asociada": "CALDERA #1",
+      "numero_identificacion": "1036638925"
+    },
+    "servicio": {
+      "tipo": "REPARACION-BOBINADO",
+      "descripcion": "BOBINADO DE MOTOR DE 20 HP A 3353",
+      "trabajos_realizados": [
+        "DESARMADO, REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADA DE ESCUDO L.V.",
+        "RODAMIENTOS REF:6309 ZZ C3 - 6209 ZZ C3 MARCA SKF",
+        "SUMINISTRO DE VENTILADOR PLASTICO WEG 160",
+        "CAMBIO E INSTALACION DE BORNERA G-33B",
+        "ADAPTACION DE BORNERA",
+        "SUMINISTRO DE THERMISTORES",
+        "SUMINISTRO DE V-RING ø 45mm",
+        "FABRIACION DE EMPAQUES"
+      ],
+      "tipo_falla": "SOBRECARGA",
+      "recomendaciones": "REALIZAR VERIFICACION DE LA CARGA EN EL MOTOR, MEDIANTE RUTAS DE EXPLORER 4000 EN DONDE SE VERIFICA CARGA DE FUNCIONAMIENTO, BALANCEO DE VOLTAJES, CORRIENTES, ETC",
+      "repuestos": [
+        "RODAMIENTOS REF:6309 ZZ C3 - 6209 ZZ C3 MARCA SKF",
+        "SUMINISTRO DE V-RING ø 45mm"
+      ]
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamiento_tierra": {
+          "tension_prueba": "500 Vdc",
+          "resistencia_aislamiento": "2700 MΩ",
+          "rango_minimo_alambre_redondo": "5 MΩ",
+          "rango_minimo_alambre_rectangular": "100 MΩ"
+        },
+        "alta_tension": {
+          "tension_prueba": "2500 Vdc",
+          "resultado": "Pasó"
+        },
+        "impulso": {
+          "tension_prueba": "2000 Vdc",
+          "resultados": {
+            "fase_I": "OK",
+            "fase_II": "OK",
+            "fase_III": "OK"
+          }
+        },
+        "vacío": {
+          "tensiones": {
+            "fase_I": "445 V",
+            "fase_II": "446 V",
+            "fase_III": "442 V"
+          },
+          "corrientes": {
+            "fase_I": "7.6 A",
+            "fase_II": "7.9 A",
+            "fase_III": "7.4 A"
+          },
+          "velocidad_prueba": "3600 RPM"
+        }
+      },
+      "mecanicas": {
+        "vibraciones": {
+          "valores": {
+            "horizontal": {
+              "maximo_permitido": "0.15 in/sec"
+            },
+            "vertical": {
+              "maximo_permitido": "0.15 in/sec"
+            },
+            "axial": {
+              "maximo_permitido": "0.15 in/sec"
+            }
+          }
+        },
+        "ajustes": {
+          "escudo_LC": {
+            "diametro": "100 mm",
+            "ajuste_inicial": "+0.02 mm",
+            "ajuste_final": "+0.02 mm",
+            "rango_permitido": "0.00/0.027 mm"
+          },
+          "escudo_LV": {
+            "diametro": "85 mm",
+            "ajuste_inicial": "+0.09 mm",
+            "ajuste_final": "+0.01 mm",
+            "rango_permitido": "0.00/0.027 mm"
+          },
+          "eje_LC": {
+            "diametro": "45 mm",
+            "ajuste_inicial": "0.00 mm",
+            "ajuste_final": "0.00 mm",
+            "rango_permitido": "0.00/0.03 mm"
+          },
+          "eje_LV": {
+            "diametro": "45 mm",
+            "ajuste_inicial": "0.00 mm",
+            "ajuste_final": "0.00 mm",
+            "rango_permitido": "0.00/0.03 mm"
+          }
+        },
+        "tipo_grasa": "N/A"
+      },
+      "temperaturas": {
+        "rodamiento_LC": "35 °C",
+        "carcasa": "31 °C",
+        "rodamiento_LV": "N/A °C",
+        "limites": {
+          "motores_menos_1800_rpm": {
+            "estator": "<50°C",
+            "escudo": "<45°C",
+            "eje": "<55°C"
+          },
+          "motores_mas_1800_rpm": {
+            "estator": "<60°C",
+            "escudo": "<65°C",
+            "eje": "<55°C"
+          }
+        }
+      },
+      "sensores": {
+        "rtds_LC": 1,
+        "rtds_LV": 1,
+        "thermistors": {
+          "cantidad": 1,
+          "valor_resistencia": "177 Ω"
+        },
+        "termo_guardas": 1,
+        "heaters": 1
+      },
+      "indice_polarizacion": {
+        "tension_prueba": "No especificada",
+        "escala": {
+          "peligroso": "<1.0",
+          "regular": "1.0-1.5",
+          "cuestionable": "1.5-2.0",
+          "bueno": "2.0-4.0"
+        },
+        "nota": "Se realiza esta prueba solo para motores entre 2300/6900 V"
+      }
+    },
+    "verificacion_placa": "El motor cumple con las especificaciones de la placa características",
+    "recomendaciones_generales": {
+      "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+      "conexiones": [
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo y sistema de arranque"
+      ],
+      "montaje": [
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga"
+      ],
+      "post_energizacion": [
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas de aislamiento y vibraciones"
+      ],
+      "arranque": "Realice análisis de vibración al arranque y seguimientos programados",
+      "almacenamiento": [
+        "Lugar cerrado y libre de humedad",
+        "Para almacenamiento prolongado, rotar eje mensualmente"
+      ]
+    },
+    "declaracion_conformidad": {
+      "responsable": {
+        "nombre": "BEDOYA CASTAÑEDA JOHNNY ANDRES",
+        "matricula": "11",
+        "entidad": "Consejo Nacional de Técnicos Electricistas"
+      },
+      "normativas": [
+        "EASA AR-100 2015",
+        "IEEE 43 2013",
+        "NEMA STD MG1 2014",
+        "RETIE 2013",
+        "IEC 60034-5"
+      ],
+      "limitaciones": [
+        "Motores de alta tensión se prueban con tensión reducida",
+        "Pruebas realizadas en vacío",
+        "Verificación de eficiencia energética requiere full carga en instalaciones del cliente",
+        "Grado de protección (IP) no se verifica en IME S.A."
+      ],
+      "fecha_firma": "Abril de 2024",
+      "lugar_firma": "Cali"
+    }
+  },
+  {
+    "archivo": "F41631223.pdf",
+      "metadatos": {
+        "empresa": "IME Ingeniería de Máquinas Eléctricas",
+        "codigo": "PROPR11F07",
+        "version": "10",
+        "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+        "vigencia": "2023-03-13",
+        "paginas": "1 de 6"
+      },
+      "informacion_general": {
+        "fecha_informe": "2023-12-05",
+        "orden_produccion": "F4163",
+        "fecha_ingreso": "2023-11-02",
+        "cliente": "AMCOR FLEXIBLES CALI SAS",
+        "orden_cliente": "900483014",
+        "fecha_entrega": "01/12/23",
+        "equipo": "BLOWER"
+      },
+      "datos_placa": {
+        "marca": "G. TORTI",
+        "potencia": "0.30 KW",
+        "frecuencia": "50 Hz",
+        "rpm": "2800",
+        "fases": "3",
+        "serie": "N.I",
+        "tension": "230 - 440 V",
+        "ip": "0",
+        "corriente": "2.25 – 1.3 Amp",
+        "frame": "N.I",
+        "maquina": "COEXTRUSORA MACCHI",
+        "identificacion": "F4163"
+      },
+      "servicio": {
+        "tipo": "REPARACION-BOBINADO",
+        "trabajos_realizados": [
+          "DESARMADO",
+          "REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+          "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+          "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+          "ARMADO DE MOTOR Y PRUEBAS FINALES",
+          "EMBUJADO ESCUDO L.C. Y L.V.",
+          "RODAMIENTOS REF:6000 2RS C3 MARCA SKF",
+          "BALANCEO DINAMICO EN CONJUNTO"
+        ],
+        "tipo_falla": "SOBRECARGA",
+        "recomendaciones": "REALIZAR VERIFICACION DE LA CARGA EN EL MOTOR, MEDIANTE RUTAS DE EXPLORER 4000 EN DONDE SE VERIFICA CARGA DE FUNCIONAMIENTO, BALANCEO DE VOLTAJES, CORRIENTES, ETC"
+      },
+      "repuestos": {
+        "descripcion": "RODAMIENTOS REF:6000 2RS C3 MARCA SKF"
+      },
+      "pruebas_realizadas": {
+        "electricas": {
+          "aislamiento_tierra": {
+            "tension_prueba": "500 Vdc",
+            "resistencia": "10.1 GΩ",
+            "rangos": {
+              "alambre_redondo": "Mínimo 5MΩ",
+              "alambre_rectangular": "Mínimo 100MΩ"
+            }
+          },
+          "alta_tension": {
+            "tension_prueba": "2350 Vdc",
+            "resultado": "Pasó",
+            "notas": [
+              "Equipos nuevos y/o rebobinados se aplica 1.7 (2Vn+1000)",
+              "Equipo Mantenimiento: se aplica el 65% {85% (1.7 (2Vn+1000))}"
+            ]
+          },
+          "impulso": {
+            "tension_prueba": "1890 Vdc",
+            "resultados": {
+              "fase_I": "OK",
+              "fase_II": "OK",
+              "fase_III": "OK"
+            },
+            "notas": [
+              "Equipos nuevos y/o rebobinados se aplica 1.7 (2Vn+1000)",
+              "Equipo Mantenimiento: se aplica el 65% {85% (1.7 (2Vn+1000))}"
+            ]
+          },
+          "vacio": {
+            "fase_I": {
+              "tension": "449",
+              "corriente": "0.7"
+            },
+            "fase_II": {
+              "tension": "456",
+              "corriente": "0.7"
+            },
+            "fase_III": {
+              "tension": "456",
+              "corriente": "0.9"
+            },
+            "velocidad_prueba": "3600 RPM"
+          }
+        },
+        "mecanicas": {
+          "vibracion": {
+            "equipo": "Ultraspect 8000"
+          },
+          "ajustes": {
+            "escudo_LC": {
+              "diametro": "26mm",
+              "ajuste_inicial": "-",
+              "ajuste_final": "+0.01mm",
+              "rango": "0.00/0.027mm"
+            },
+            "escudo_LV": {
+              "diametro": "26mm",
+              "ajuste_inicial": "-",
+              "ajuste_final": "+0.01mm",
+              "rango": "0.00/0.027mm"
+            },
+            "eje_LC": {
+              "diametro": "10mm",
+              "ajuste_inicial": "0.00",
+              "ajuste_final": "0.00",
+              "rango": "0.00/0.03mm"
+            },
+            "eje_LV": {
+              "diametro": "10mm",
+              "ajuste_inicial": "0.00",
+              "ajuste_final": "0.00",
+              "rango": "0.00/0.03mm"
+            }
+          },
+          "grasa": "N/A"
+        },
+        "temperatura": {
+          "rodamiento_LC": "33°C",
+          "carcasa": "32°C",
+          "rodamiento_LV": "N/A",
+          "notas": [
+            "Temperatura permitida para motores < 1800 rpm en vacio: Estator <50°C, Escudo <45°C, Eje <55°C",
+            "Temperatura máxima para motores >1800 rpm: Estator < 60°C, Escudo < 65°C, Eje < 55°C"
+          ]
+        },
+        "indice_polarizacion": {
+          "tension_prueba": "Vdc",
+          "escala": {
+            "peligroso": "< 1.0",
+            "regular": "> 1.0 a 1.5",
+            "cuestionable": "> 1.5 a 2.0",
+            "bueno": "> 2.0 a 4"
+          },
+          "nota": "Se realiza esta prueba solo para motores entre 2300/6900 V"
+        }
+      },
+      "verificaciones": {
+        "placa_datos": "De acuerdo a las pruebas realizadas (verificaciones y cálculos) el motor cumple con las especificaciones de la placa características",
+        "recomendaciones_generales": {
+          "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+          "conexiones": [
+            "Revise que la instalación eléctrica no se encuentre defectuosa o inadecuada",
+            "Revise que el sistema de protección sea conforme con el equipo",
+            "Realice una prueba de aislamiento a tierra con Megger",
+            "Revise que la línea de conexión al sistema de aterrizaje este debidamente conectada",
+            "Verifique tensión de trabajo y correspondencia entre tensión, conexión y/o sistema de arranque"
+          ],
+          "montaje": [
+            "Use las herramientas adecuadas para la tarea",
+            "Realice un correcto anclaje y alineación del equipo",
+            "Realizar la alineación con equipo de rayo laser",
+            "Verifique que la carga se encuentre balanceada"
+          ],
+          "post_energizacion": [
+            "Revise que el sentido de giro este en la dirección correcta",
+            "Inspeccione la lubricación o relubrique si es el caso",
+            "Use correctas prácticas de lubricación",
+            "Para motores con sistema de lubricación habilitado, mantenga la ruta de lubricación",
+            "Realice mediciones de resistencia de aislamiento y de vibraciones periódicamente"
+          ],
+          "arranque": "Realice análisis de vibración al momento del arranque, después a los dos días, otra a los cuatro días después de la prueba anterior, luego otra prueba a los 15 días después de la tercera prueba y luego hacer rutas cada 3 meses",
+          "almacenamiento": [
+            "Si el motor se va a almacenar, se recomienda ubicarlo en un lugar cerrado y libre de humedad",
+            "Si se va a almacenar a largo plazo, rote el eje por lo menos una vez al mes"
+          ]
+        }
+      },
+      "declaracion_conformidad": {
+        "orden_produccion": "F4163",
+        "tecnico": {
+          "nombre": "JIMENEZ CAMILO LUIS ADOLFO",
+          "direccion": "Calle 56 No. 5N126",
+          "matricula": "94519543",
+          "entidad": "Consejo Nacional de Técnicos Electricistas"
+        },
+        "declaracion": "El equipo cumple con todos y cada uno de los requisitos establecidos en el Reglamento Técnico de Instalaciones Eléctricas RETIE que aplican",
+        "normativas": [
+          "EASA AR-100 2015 (Practica recomendada para la reparación de máquinas eléctricas rotativas)",
+          "IEEE 43 2013 (Recommended practice for testing insulation resistance of electric machinery)",
+          "NEMA STD MG1 2014 Motors And Generators",
+          "RETIE 2013 numeral 20.21: Motores y Generadores",
+          "IEC 60034-5 Maquinas Eléctricas Rotativas. Grados de protección"
+        ],
+        "fecha_firma": "05 de Diciembre de 2023",
+        "lugar_firma": "Cali",
+        "firma": "Analista de Prueba JIMENEZ CAMILO LUIS ADOLFO, 94519543",
+        "limitaciones": [
+          "Motores de Alta tensión 2300V, 4160V se prueban con tensión reducida",
+          "Todas las pruebas realizadas a los motores son ejecutadas en vacio",
+          "La Eficiencia energética y verificación de potencia es posible cuando el motor se encuentra a full carga",
+          "El Grado de protección (IP) no se verifica en IME S.A."
+        ]
+      }
+  },
+  {
+    "archivo": "F47890424.pdf",
+      "metadatos": {
+        "empresa": "IME Ingeniería de Máquinas Eléctricas",
+        "codigo": "PROPR11F07",
+        "version": "10",
+        "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+        "vigencia": "2023-03-13",
+        "pagina": "1 de 6"
+      },
+      "informacion_general": {
+        "fecha_informe": "2024-04-10",
+        "orden_produccion": "F4789",
+        "fecha_ingreso": "2024-03-27",
+        "empresa_cliente": "ALIMENTOS CARNICOS S A S",
+        "orden_cliente": "890304130",
+        "fecha_entrega": "28/03/24",
+        "equipo": "MOTORBLOWER"
+      },
+      "datos_placa": {
+        "marca": "VEM",
+        "potencia": "2.60 KW",
+        "Hz": "60",
+        "RPM": "845",
+        "fases": "3",
+        "serie": "34333-26F",
+        "tension": "275 - 460 V",
+        "IP": "55",
+        "corriente": "10 – 6.3 Amp",
+        "frame": "N.I",
+        "maquina": "TUNEL DESCONGELADOR",
+        "no_identif": "I00270"
+      },
+      "servicio": {
+        "tipo": "MANTENIMIENTO",
+        "trabajo_realizado": [
+          "SERVICIO MANTENIMIENTO DE MOTORES BLOWERS DESCONGELADOR MOREP",
+          "DESARMADO, LAVADO, SECADO, REBARNIZADO DE ESTATOR",
+          "PRUEBAS ELÉCTRICAS CON EQUIPO BAKER A ESTATOR",
+          "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+          "ARMADO DE MOTOR Y PRUEBAS FINALES",
+          "EMBUJADO DE ESCUDO L.C. Y L.V.",
+          "SUMINISTRO DE RODAMIENTOS 6208 ZZ C3 MARCA SKF",
+          "BALANCEO DINAMICO EN CONJUNTO"
+        ],
+        "tipo_falla": "SOBRECARGA",
+        "recomendaciones": [
+          "REALIZAR MANTENIMIENTO PREVENTIVO PERIODICO QUE INCLUYA MEDICION DE AISLAMIENTO",
+          "REALIZAR MANTENIMIENTO PREDICTIVO PERIODICO"
+        ]
+      },
+      "repuestos": [
+        "RODAMIENTOS REF:6208 ZZ C3 MARCA SKF"
+      ],
+      "pruebas_realizadas": {
+        "pruebas_electricas": {
+          "aislamiento_tierra": {
+            "tension_prueba": "500 Vdc",
+            "resistencia_aislamiento": "7.2 GΩ",
+            "rangos": {
+              "alambre_redondo": "Mínimo 5MΩ",
+              "alambre_rectangular": "Mínimo 100MΩ"
+            }
+          },
+          "alta_tension": {
+            "tension_prueba": "2500 Vdc",
+            "resultado": "Pasó",
+            "notas": [
+              "Equipos nuevos y/o rebobinados se aplica 1.7 (2Vn+1000)",
+              "Equipo Mantenimiento: se aplica el 65% {85% (1.7 (2Vn+1000))}"
+            ]
+          },
+          "impulso": {
+            "tension_prueba": "2000 Vdc",
+            "resultados": {
+              "FASE I": "OK",
+              "FASE II": "OK",
+              "FASE III": "OK"
+            },
+            "notas": [
+              "Equipos nuevos y/o rebobinados se aplica 1.7 (2Vn+1000)",
+              "Equipo Mantenimiento: se aplica el 65% {85% (1.7 (2Vn+1000))}"
+            ]
+          },
+          "vacio": {
+            "FASE I": {
+              "tension": "450",
+              "corriente": "3.8"
+            },
+            "FASE II": {
+              "tension": "449",
+              "corriente": "3.5"
+            },
+            "FASE III": {
+              "tension": "454",
+              "corriente": "4.1"
+            },
+            "velocidad_prueba": "890 RPM"
+          }
+        },
+        "pruebas_mecanicas": {
+          "analisis_vibracion": {
+            "equipo": "Ultraspect 8000"
+          },
+          "ajuste_alojamientos_ejes": [
+            {
+              "pto": "HORIZONTAL",
+              "ubicacion": "Escudo LC",
+              "diametro": "80",
+              "ajuste_inicial": "+0.01",
+              "ajuste_final": "+0.01",
+              "rangos": "0.00/0.027",
+              "rango_maximo": "0.15 in/sec"
+            },
+            {
+              "pto": "VERTICAL",
+              "ubicacion": "Escudo LV",
+              "diametro": "72",
+              "ajuste_inicial": "+0.015",
+              "ajuste_final": "+0.015",
+              "rangos": "0.00/0.027",
+              "rango_maximo": "0.15 in/sec"
+            },
+            {
+              "pto": "AXIAL",
+              "ubicacion": "Eje LC",
+              "diametro": "40",
+              "ajuste_inicial": "0.00",
+              "ajuste_final": "0.00",
+              "rangos": "0.00/0.03",
+              "rango_maximo": "0.15 in/sec"
+            },
+            {
+              "pto": "PKV1",
+              "ubicacion": "Eje LV",
+              "diametro": "35",
+              "ajuste_inicial": "0.00",
+              "ajuste_final": "0.00",
+              "rangos": "0.00/0.03",
+              "rango_maximo": "0.5 g's RMS"
+            },
+            {
+              "pto": "PKV2",
+              "rango_maximo": "0.5 g's RMS"
+            }
+          ],
+          "tipo_grasa": "N/A"
+        },
+        "verificacion_temperatura": {
+          "temperatura_rod_LC": "31 °C",
+          "temperatura_carcasa": "30 °C",
+          "temperatura_rod_LV": "30 °C",
+          "notas": [
+            "Temperatura permitida para motores < 1800 rpm en vacio son: Estator <50°C, Escudo <45°C, Eje <55°C",
+            "Temperatura máxima para motores >1800 rpm son: Estator < 60°C, Escudo < 65°C, Eje < 55°C"
+          ]
+        },
+        "indice_polarizacion": {
+          "tension_prueba": "Vdc",
+          "escala": {
+            "peligroso": "< 1.0",
+            "regular": "> 1.0 a 1.5",
+            "cuestionable": "> 1.5 a 2.0",
+            "bueno": "> 2.0 a 4"
+          },
+          "nota": "Se realiza esta prueba solo para motores entre 2300/6900 V"
+        }
+      },
+      "observaciones": {
+        "fotos": {
+          "antes": "Disponible",
+          "despues": "Disponible"
+        }
+      },
+      "verificacion_placa": "De acuerdo a las pruebas realizadas (verificaciones y cálculos) el motor cumple con las especificaciones de la placa características",
+      "recomendaciones_generales": {
+        "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "conexiones": [
+          "Revise que la instalación eléctrica no se encuentre defectuosa o inadecuada",
+          "Revise que el sistema de protección sea conforme con el equipo",
+          "Realice una prueba de aislamiento a tierra con Megger (Compare resultado con el informe técnico o con normas de aislamiento)",
+          "Revise que la línea de conexión al sistema de aterrizaje este debidamente conectada por seguridad del equipo y del personal",
+          "Verifique tensión de trabajo y correspondencia entre tensión, conexión y/o sistema de arranque"
+        ],
+        "montaje": [
+          "Use las herramientas adecuadas para la tarea",
+          "Realice un correcto anclaje y alineación del equipo",
+          "Realizar la alineación con equipo de rayo laser",
+          "Verifique que la carga se encuentre balanceada para evitar vibraciones anormales"
+        ],
+        "post_energizacion": [
+          "Revise que el sentido de giro este en la dirección correcta",
+          "Inspeccione la lubricación o relubrique si es el caso",
+          "Use correctas prácticas de lubricación",
+          "Para motores con sistema de lubricación habilitado, mantenga la ruta de lubricación",
+          "Realice mediciones de resistencia de aislamiento y de vibraciones periódicamente"
+        ],
+        "arranque": "Realice análisis de vibración al momento del arranque, después a los dos días, otra a los cuatro días después de la prueba anterior, luego otra prueba a los 15 días después de la tercera prueba y luego hacer rutas cada 3 meses",
+        "almacenamiento": [
+          "Si el motor se va a almacenar, se recomienda ubicarlo en un lugar cerrado y libre de humedad hasta el momento de la instalación",
+          "Si se va a almacenar a largo plazo, rote el eje por lo menos una vez al mes para mantener una capa del lubricante en las pistas del rodamiento y para minimizar la posibilidad de desgaste por peso del rotor"
+        ]
+      },
+      "declaracion_conformidad": {
+        "orden_produccion": "F4789",
+        "tecnico": {
+          "nombre": "GONZALEZ PARDO MARIA DEL MAR",
+          "domicilio": "Calle 56 No. 5N126",
+          "matricula": "1108253665",
+          "entidad": "Consejo Nacional de Técnicos Electricistas"
+        },
+        "equipo": {
+          "marca": "VEM",
+          "potencia": "2.20/0.00 KW",
+          "RPM": "845/0",
+          "tension": "460 V",
+          "corriente": "5.8 Amp",
+          "serie": "34333-26F"
+        },
+        "declaracion": "El equipo cuyo mantenimiento y/o reparación estuvo a cargo de nuestra Compañía, cumple con todos y cada uno de los requisitos establecidos en el Reglamento Técnico de Instalaciones Eléctricas RETIE que aplican",
+        "sistema_gestion": {
+          "certificacion": "ISO 9001"
+        },
+        "normas": [
+          "EASA AR-100 2015 (Practica recomendada para la reparación de máquinas eléctricas rotativas)",
+          "IEEE 43 2013 (Recommended practice for testing insulation resistance of electric machinery)",
+          "NEMA STD MG1 2014 Motors And Generators",
+          "RETIE 2013 numeral 20.21: Motores y Generadores",
+          "IEC 60034-5 Maquinas Eléctricas Rotativas. Grados de protección"
+        ],
+        "fecha_firma": "10 de Abril de 2024",
+        "lugar_firma": "Cali",
+        "firma": "Analista de Prueba GONZALEZ PARDO MARIA DEL MAR, 1108253665",
+        "limitaciones": [
+          "En el caso de Motores de Alta tensión 2300V, 4160V, se prueban con tensión reducida",
+          "Todas las pruebas realizadas a los motores son ejecutadas en vacio",
+          "La Eficiencia energética y la verificación de potencia en los motores, es posible cuando el motor y/o equipo se encuentra a full carga en las instalaciones del cliente",
+          "El Grado de protección (IP); no se realiza verificación en IME S.A. deja su cumplimiento bajo responsabilidad del fabricante"
+        ]
+      }
+  },
+  {
+    "archivo": "F47910424.pdf",
+      "metadatos": {
+        "empresa": "IME Ingeniería de Máquinas Eléctricas",
+        "codigo": "PROPR11F07",
+        "version": "10",
+        "tipo_documento": "INFORME TECNICO PARA MOTORES AC",
+        "vigencia": "2023-03-13",
+        "pagina": "1 de 6"
+      },
+      "informacion_general": {
+        "fecha_informe": "2024-04-10",
+        "orden_produccion": "F4791",
+        "fecha_ingreso": "2024-03-27",
+        "empresa_cliente": "ALIMENTOS CARNICOS S A S",
+        "orden_cliente": "890304130",
+        "fecha_entrega": "28/03/24",
+        "equipo": "MOTOR BLOWER"
+      },
+      "datos_placa": {
+        "marca": "MARATHON",
+        "potencia": "2.20 HP",
+        "Hz": "60",
+        "RPM": "3410",
+        "fases": "3",
+        "serie": "N.I",
+        "tension": "440 V",
+        "IP": "55",
+        "corriente": "4.69 Amp",
+        "frame": "N.I",
+        "maquina": "DESCONGELADOR MOREP",
+        "no_identif": "F4791"
+      },
+      "servicio": {
+        "tipo": "MANTENIMIENTO",
+        "trabajo_realizado": [
+          "SERVICIO MANTENIMIENTO DE MOTORES BLOWERS DESCONGELADOR MOREP",
+          "DESARMADO, LAVADO, SECADO, REBARNIZADO DE ESTATOR",
+          "PRUEBAS ELÉCTRICAS CON EQUIPO BAKER A ESTATOR",
+          "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+          "ARMADO DE MOTOR Y PRUEBAS FINALES",
+          "EMBUJADO DE ESCUDO L.C. Y L.V.",
+          "SUMINISTRO DE RODAMIENTOS 6208 ZZ C3 MARCA SKF",
+          "BALANCEO DINAMICO EN CONJUNTO"
+        ],
+        "recomendaciones": [
+          "REALIZAR MANTENIMIENTO PREVENTIVO PERIODICO QUE INCLUYA MEDICION DE AISLAMIENTO",
+          "REALIZAR MANTENIMIENTO PREDICTIVO PERIODICO"
+        ]
+      },
+      "pruebas_realizadas": {
+        "pruebas_electricas": {
+          "aislamiento_tierra": {
+            "tension_prueba": "500 Vdc",
+            "resistencia_aislamiento": "2 GΩ",
+            "rangos": {
+              "alambre_redondo": "Mínimo 5MΩ",
+              "alambre_rectangular": "Mínimo 100MΩ"
+            }
+          },
+          "alta_tension": {
+            "tension_prueba": "2060 Vdc",
+            "resultado": "Pasó",
+            "notas": [
+              "Equipos nuevos y/o rebobinados se aplica 1.7 (2Vn+1000)",
+              "Equipo Mantenimiento: se aplica el 65% {85% (1.7 (2Vn+1000))}"
+            ]
+          },
+          "impulso": {
+            "tension_prueba": "1920 Vdc",
+            "resultados": {
+              "FASE I": "OK",
+              "FASE II": "OK",
+              "FASE III": "OK"
+            },
+            "notas": [
+              "Equipos nuevos y/o rebobinados se aplica 1.7 (2Vn+1000)",
+              "Equipo Mantenimiento: se aplica el 65% {85% (1.7 (2Vn+1000))}"
+            ]
+          },
+          "vacio": {
+            "FASE I": {
+              "tension": "447",
+              "corriente": "1.6"
+            },
+            "FASE II": {
+              "tension": "442",
+              "corriente": "1.4"
+            },
+            "FASE III": {
+              "tension": "447",
+              "corriente": "1.8"
+            },
+            "velocidad_prueba": "3596 RPM"
+          }
+        },
+        "pruebas_mecanicas": {
+          "analisis_vibracion": {
+            "equipo": "Ultraspect 8000"
+          },
+          "ajuste_alojamientos_ejes": [
+            {
+              "pto": "HORIZONTAL",
+              "ubicacion": "Escudo LC",
+              "diametro": "52",
+              "ajuste_inicial": "+0.02",
+              "ajuste_final": "+0.02",
+              "rangos": "0.00/0.027",
+              "rango_maximo": "0.15 in/sec"
+            },
+            {
+              "pto": "VERTICAL",
+              "ubicacion": "Escudo LV",
+              "diametro": "52",
+              "ajuste_inicial": "+0.02",
+              "ajuste_final": "+0.02",
+              "rangos": "0.00/0.027",
+              "rango_maximo": "0.15 in/sec"
+            },
+            {
+              "pto": "AXIAL",
+              "ubicacion": "Eje LC",
+              "diametro": "25",
+              "ajuste_inicial": "0.00",
+              "ajuste_final": "0.00",
+              "rangos": "0.00/0.03",
+              "rango_maximo": "0.15 in/sec"
+            },
+            {
+              "pto": "PKV1",
+              "ubicacion": "Eje LV",
+              "diametro": "25",
+              "ajuste_inicial": "0.00",
+              "ajuste_final": "0.00",
+              "rangos": "0.00/0.03",
+              "rango_maximo": "0.5 g's RMS"
+            },
+            {
+              "pto": "PKV2",
+              "rango_maximo": "0.5 g's RMS"
+            }
+          ],
+          "tipo_grasa": "N/A"
+        },
+        "verificacion_temperatura": {
+          "temperatura_rod_LC": "38 °C",
+          "temperatura_carcasa": "35 °C",
+          "temperatura_rod_LV": "N/A °C",
+          "notas": [
+            "Temperatura permitida para motores < 1800 rpm en vacio son: Estator <50°C, Escudo <45°C, Eje <55°C",
+            "Temperatura máxima para motores >1800 rpm son: Estator < 60°C, Escudo < 65°C, Eje < 55°C"
+          ]
+        },
+        "sensores": {
+          "RTD_LC": ["1", "2", "3", "4"],
+          "RTD_LV": ["4", "5", "6", "7"],
+          "thermistors": ["1 (232,2Ω)", "2", "3", "4"],
+          "heaters": ["1", "2"]
+        },
+        "indice_polarizacion": {
+          "tension_prueba": "Vdc",
+          "escala": {
+            "peligroso": "< 1.0",
+            "regular": "> 1.0 a 1.5",
+            "cuestionable": "> 1.5 a 2.0",
+            "bueno": "> 2.0 a 4"
+          },
+          "nota": "Se realiza esta prueba solo para motores entre 2300/6900 V"
+        }
+      },
+      "observaciones": {
+        "fotos": {
+          "antes": "Disponible",
+          "despues": "Disponible"
+        }
+      },
+      "verificacion_placa": "De acuerdo a las pruebas realizadas (verificaciones y cálculos) el motor cumple con las especificaciones de la placa características",
+      "recomendaciones_generales": {
+        "pruebas": "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "conexiones": [
+          "Revise que la instalación eléctrica no se encuentre defectuosa o inadecuada",
+          "Revise que el sistema de protección sea conforme con el equipo",
+          "Realice una prueba de aislamiento a tierra con Megger (Compare resultado con el informe técnico o con normas de aislamiento)",
+          "Revise que la línea de conexión al sistema de aterrizaje este debidamente conectada por seguridad del equipo y del personal",
+          "Verifique tensión de trabajo y correspondencia entre tensión, conexión y/o sistema de arranque"
+        ],
+        "montaje": [
+          "Use las herramientas adecuadas para la tarea",
+          "Realice un correcto anclaje y alineación del equipo",
+          "Realizar la alineación con equipo de rayo laser",
+          "Verifique que la carga se encuentre balanceada para evitar vibraciones anormales"
+        ],
+        "post_energizacion": [
+          "Revise que el sentido de giro este en la dirección correcta",
+          "Inspeccione la lubricación o relubrique si es el caso",
+          "Use correctas prácticas de lubricación",
+          "Para motores con sistema de lubricación habilitado, mantenga la ruta de lubricación",
+          "Realice mediciones de resistencia de aislamiento y de vibraciones periódicamente"
+        ],
+        "arranque": "Realice análisis de vibración al momento del arranque, después a los dos días, otra a los cuatro días después de la prueba anterior, luego otra prueba a los 15 días después de la tercera prueba y luego hacer rutas cada 3 meses",
+        "almacenamiento": [
+          "Si el motor se va a almacenar, se recomienda ubicarlo en un lugar cerrado y libre de humedad hasta el momento de la instalación",
+          "Si se va a almacenar a largo plazo, rote el eje por lo menos una vez al mes para mantener una capa del lubricante en las pistas del rodamiento y para minimizar la posibilidad de desgaste por peso del rotor"
+        ]
+      },
+      "declaracion_conformidad": {
+        "orden_produccion": "F4791",
+        "tecnico": {
+          "nombre": "GONZALEZ PARDO MARIA DEL MAR",
+          "domicilio": "Calle 56 No. 5N126",
+          "matricula": "1108253665",
+          "entidad": "Consejo Nacional de Técnicos Electricistas"
+        },
+        "equipo": {
+          "marca": "MARATHON",
+          "potencia": "2.20/0.00 HP",
+          "RPM": "3410/0",
+          "tension": "440 V",
+          "corriente": "Amp",
+          "serie": ""
+        },
+        "declaracion": "El equipo cuyo mantenimiento y/o reparación estuvo a cargo de nuestra Compañía, cumple con todos y cada uno de los requisitos establecidos en el Reglamento Técnico de Instalaciones Eléctricas RETIE que aplican",
+        "sistema_gestion": {
+          "certificacion": "ISO 9001"
+        },
+        "normas": [
+          "EASA AR-100 2015 (Practica recomendada para la reparación de máquinas eléctricas rotativas)",
+          "IEEE 43 2013 (Recommended practice for testing insulation resistance of electric machinery)",
+          "NEMA STD MG1 2014 Motors And Generators",
+          "RETIE 2013 numeral 20.21: Motores y Generadores",
+          "IEC 60034-5 Maquinas Eléctricas Rotativas. Grados de protección"
+        ],
+        "fecha_firma": "10 de Abril de 2024",
+        "lugar_firma": "Cali",
+        "firma": "Analista de Prueba GONZALEZ PARDO MARIA DEL MAR, 1108253665",
+        "limitaciones": [
+          "En el caso de Motores de Alta tensión 2300V, 4160V, se prueban con tensión reducida",
+          "Todas las pruebas realizadas a los motores son ejecutadas en vacio",
+          "La Eficiencia energética y la verificación de potencia en los motores, es posible cuando el motor y/o equipo se encuentra a full carga en las instalaciones del cliente",
+          "El Grado de protección (IP); no se realiza verificación en IME S.A. deja su cumplimiento bajo responsabilidad del fabricante"
+        ]
+      }
+  }
+]

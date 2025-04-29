@@ -1,0 +1,826 @@
+[
+  {
+    "archivo": "F41641223.pdf",
+    "datosTecnicos": {
+      "marca": "No informado (N.I)",
+      "modelo": "No informado (N.I)",
+      "potencia": "0.30 KW",
+      "tension": "220 - 440 V",
+      "corriente": "1.4 - 0.7 Amp",
+      "frecuencia": "60 Hz",
+      "fases": "3",
+      "rpm": "2800",
+      "frame": "No informado (N.I)",
+      "proteccion": "IP 0",
+      "claseAislamiento": "H",
+      "maquinaAsociada": "COEXTRUSORA MACCHI",
+      "tipoEquipo": "BLOWER",
+      "identificacionEquipo": "F4164"
+    },
+    "servicio": {
+      "tipo": "REPARACION-BOBINADO",
+      "descripcion": "SERVICIO REPARACION - BOBINADO DE MOTOR BLOWER DE 0.30 KW A 2800 RPM",
+      "procedimientos": [
+        "DESARMADO",
+        "REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADO ESCUDO L.C. Y L.V.",
+        "BALANCEO DINAMICO EN CONJUNTO"
+      ],
+      "diagnostico": {
+        "tipoFalla": "SOBRECARGA",
+        "descripcionFalla": "Motor presentaba falla por sobrecarga",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": "7.5 GΩ (Mínimo: Mínimo 5MΩ)",
+        "altaTension": "Pasó (2050 Vdc)",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: 447 VV, 445 VV, 453 VV, Corriente: 0.5 AA, 0.4 AA, 0.5 AA"
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        "",
+        "Hipot Equipo Baker",
+        "Megohmetro Digital 1060",
+        "Ultraspect 8000"
+      ]
+    },
+    "repuestos": [
+      {
+        "tipo": "Rodamiento",
+        "referencia": "6000 2RS C3",
+        "marca": "SKF",
+        "cantidad": 2,
+        "codigoStandard": "SKF-6000-2RS-C3"
+      }
+    ],
+    "fechasClave": {
+      "ingreso": "2023-11-02",
+      "informe": "2023-12-07",
+      "entrega": "2023-12-04",
+      "firma": "2023-12-12"
+    },
+    "recomendaciones": {
+      "especificas": [
+        "REALIZAR VERIFICACION DE LA CARGA EN EL MOTOR, MEDIANTE RUTAS DE EXPLORER 4000 EN DONDE SE VERIFICA CARGA DE FUNCIONAMIENTO, BALANCEO DE VOLTAJES, CORRIENTES, ETC."
+      ],
+      "generales": [
+        "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo",
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga",
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas",
+        "Lugar cerrado y libre de humedad",
+        "Rotar eje mensualmente si almacenamiento prolongado"
+      ]
+    },
+    "normativas": [
+      "EASA AR-100:2015",
+      "IEEE 43:2013",
+      "NEMA STD MG1:2014",
+      "RETIE:2013",
+      "IEC 60034-5:"
+    ],
+    "cliente": "AMCOR FLEXIBLES CALI SAS",
+    "tipoFalla": "SOBRECARGA",
+    "estadoReparacion": "El motor cumple con las especificaciones de la placa características",
+    "textoCompleto": "Motor marca: No informado (N.I), potencia: 0.30 KW, tension: 220 - 440 V, corriente: 1.4 - 0.7 Amp. Servicio: REPARACION-BOBINADO - SERVICIO REPARACION - BOBINADO DE MOTOR BLOWER DE 0.30 KW A 2800 RPM. Procedimientos: DESARMADO; REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS; PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR; REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS; ARMADO DE MOTOR Y PRUEBAS FINALES; EMBUJADO ESCUDO L.C. Y L.V.; BALANCEO DINAMICO EN CONJUNTO. Recomendaciones: especificas - REALIZAR VERIFICACION DE LA CARGA EN EL MOTOR, MEDIANTE RUTAS DE EXPLORER 4000 EN DONDE SE VERIFICA CARGA DE FUNCIONAMIENTO, BALANCEO DE VOLTAJES, CORRIENTES, ETC.; generales - Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga; Revise instalación eléctrica; Verifique sistema de protección; Prueba de aislamiento con Megger; Verifique conexión a tierra; Verifique tensión de trabajo; Use herramientas adecuadas; Correcto anclaje y alineación; Alineación con equipo láser; Balanceo de carga; Verifique sentido de giro; Inspeccione lubricación; Mantenga rutas de lubricación; Mediciones periódicas; Lugar cerrado y libre de humedad; Rotar eje mensualmente si almacenamiento prolongado. Falla: SOBRECARGA - Motor presentaba falla por sobrecarga. Estado reparación: El motor cumple con las especificaciones de la placa características. Fechas: inicio - 2023-11-02, fin - 2023-12-04. Normativas: EASA AR-100:2015; IEEE 43:2013; NEMA STD MG1:2014; RETIE:2013; IEC 60034-5:. Cliente: AMCOR FLEXIBLES CALI SAS."
+  },
+  {
+    "archivo": "F44730324.pdf",
+    "datosTecnicos": {
+      "marca": "REPUBLIC",
+      "modelo": "No informado (N.I)",
+      "potencia": "15.00 HP",
+      "tension": "230 - 460 V",
+      "corriente": "40 - 20 Amp",
+      "frecuencia": "60 Hz",
+      "fases": "3",
+      "rpm": "3600",
+      "frame": "No informado (N.I)",
+      "proteccion": "IP 0",
+      "claseAislamiento": "No especificada",
+      "maquinaAsociada": "AGUA DOMESTICA PTAR",
+      "tipoEquipo": "MOTOR",
+      "identificacionEquipo": "G04016"
+    },
+    "servicio": {
+      "tipo": "MANTENIMIENTO",
+      "descripcion": "MANTENIMIENTO DE MOTOR 15 HP A 3600 RPM CON # DE SALIDA 70764",
+      "procedimientos": [
+        "DESARMADO, LAVADO, SECADO Y REBARNIZADO DE ESTATOR",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADA DE ESCUDO L.V.",
+        "FABRICACION DE BOCIN",
+        "FABRICACION DE FILTROS",
+        "FABRICACION DE EMPAQUES",
+        "BALANCEO DINAMICO EN CONJUNTO"
+      ],
+      "diagnostico": {
+        "tipoFalla": "",
+        "descripcionFalla": "",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": "17.7 GΩ (Mínimo: Mínimo 5MΩ)",
+        "altaTension": "Pasó (2070 Vdc)",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: N/AV, N/AV, N/AV, Corriente: N/AA, N/AA, N/AA"
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        "",
+        "Hipot Equipo Baker",
+        "Megohmetro Digital 1060",
+        "Ultraspect 8000"
+      ]
+    },
+    "repuestos": [
+      {
+        "tipo": "Rodamiento",
+        "referencia": "6207 ZZ C3",
+        "marca": "SKF",
+        "cantidad": 1,
+        "codigoStandard": "SKF-6207-ZZ-C3"
+      },
+      {
+        "tipo": "Rodamiento",
+        "referencia": "6209 ZZ C3",
+        "marca": "SKF",
+        "cantidad": 1,
+        "codigoStandard": "SKF-6209-ZZ-C3"
+      },
+      {
+        "tipo": "Retén",
+        "referencia": "45*52*5",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "-45*52*5"
+      },
+      {
+        "tipo": "Retén",
+        "referencia": "45*62*7",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "-45*62*7"
+      },
+      {
+        "tipo": "O-Ring",
+        "referencia": "",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "-"
+      }
+    ],
+    "fechasClave": {
+      "ingreso": "2024-01-04",
+      "informe": "2024-03-05",
+      "entrega": "2024-03-05",
+      "firma": "2024-03-05"
+    },
+    "recomendaciones": {
+      "especificas": [
+        "REALIZAR MANTENIMIENTO PREVENTIVO PERIODICO QUE INCLUYA MEDICION DE AISLAMIENTO",
+        "REALIZAR MANTENIMIENTO PREDICTIVO PERIODICO"
+      ],
+      "generales": [
+        "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo",
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga",
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas",
+        "Lugar cerrado y libre de humedad",
+        "Rotar eje mensualmente si almacenamiento prolongado"
+      ]
+    },
+    "normativas": [
+      "EASA AR-100:2015",
+      "IEEE 43:2013",
+      "NEMA STD MG1:2014",
+      "RETIE:2013",
+      "IEC 60034-5:"
+    ],
+    "cliente": "FAMILIA DEL PACIFICO SAS",
+    "tipoFalla": "",
+    "estadoReparacion": "El motor cumple con las especificaciones de la placa características",
+    "textoCompleto": "Motor marca: REPUBLIC, potencia: 15.00 HP, tension: 230 - 460 V, corriente: 40 - 20 Amp. Servicio: MANTENIMIENTO - MANTENIMIENTO DE MOTOR 15 HP A 3600 RPM CON # DE SALIDA 70764. Procedimientos: DESARMADO, LAVADO, SECADO Y REBARNIZADO DE ESTATOR; PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR; REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS; ARMADO DE MOTOR Y PRUEBAS FINALES; EMBUJADA DE ESCUDO L.V.; FABRICACION DE BOCIN; FABRICACION DE FILTROS; FABRICACION DE EMPAQUES; BALANCEO DINAMICO EN CONJUNTO. Recomendaciones: especificas - REALIZAR MANTENIMIENTO PREVENTIVO PERIODICO QUE INCLUYA MEDICION DE AISLAMIENTO; REALIZAR MANTENIMIENTO PREDICTIVO PERIODICO; generales - Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga; Revise instalación eléctrica; Verifique sistema de protección; Prueba de aislamiento con Megger; Verifique conexión a tierra; Verifique tensión de trabajo; Use herramientas adecuadas; Correcto anclaje y alineación; Alineación con equipo láser; Balanceo de carga; Verifique sentido de giro; Inspeccione lubricación; Mantenga rutas de lubricación; Mediciones periódicas; Lugar cerrado y libre de humedad; Rotar eje mensualmente si almacenamiento prolongado. Falla:  - . Estado reparación: El motor cumple con las especificaciones de la placa características. Fechas: inicio - 2024-01-04, fin - 2024-03-05. Normativas: EASA AR-100:2015; IEEE 43:2013; NEMA STD MG1:2014; RETIE:2013; IEC 60034-5:. Cliente: FAMILIA DEL PACIFICO SAS."
+  },
+  {
+    "archivo": "F44840324.pdf",
+    "datosTecnicos": {
+      "marca": "WEG",
+      "modelo": "",
+      "potencia": "250.00 KW",
+      "tension": "460 V",
+      "corriente": "404 Amp",
+      "frecuencia": "60 Hz",
+      "fases": "3",
+      "rpm": "3590",
+      "frame": "315-L02",
+      "proteccion": "IP55",
+      "claseAislamiento": "",
+      "maquinaAsociada": "COMPRESOR GD T250",
+      "tipoEquipo": "MOTOR",
+      "identificacionEquipo": ""
+    },
+    "servicio": {
+      "tipo": "REPARACION-BOBINADO",
+      "descripcion": "SERVICIO REPARACION - BOBINADO DE MOTOR DE 250 KW A 3590 RPM 1377CFM TRABAJOS CONSECUENTES",
+      "procedimientos": [
+        "DESARMADO, REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "SUMINISTRO DE CABLE PARA BOBINADO",
+        "REPARACION DE NUCLEO",
+        "CONSTRUCCION DE EJE EN ACERO 4140",
+        "EMBUJADA DE ESCUDO L.V.",
+        "SUMINISTRO DE VENTILADOR EN ALUMINIO TC 200 Y MAQUINADO",
+        "BALANCEO DINAMICO EN CONJUNTO",
+        "EMBUJADO DE FLANCHE INTERNO LV",
+        "RECTIFICADO DE FLANCHE EXTERIOR LV",
+        "FABRICACION DE AGUJEROS Y CUADRANTES A ESCUDO LV",
+        "FABRICACION DE CUÑA",
+        "RODAMIENTOS REF:6314 C4 - 6314 M C4 VL0241",
+        "SUMINISTRO DE THERMISTORES",
+        "SUMINISTRO DE V-RING ø 70mm",
+        "SUMINISTRO DE CHAVETA PARA EJE DE 70mm"
+      ],
+      "diagnostico": {
+        "tipoFalla": "CORTO ENTRE ESPIRAS POR ARRASTRE",
+        "descripcionFalla": "",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": " (Mínimo: )",
+        "altaTension": "Pasó (2500 Vdc)",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: , Corriente: "
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        ""
+      ]
+    },
+    "repuestos": [
+      {
+        "tipo": "",
+        "referencia": "EJE EN ACERO 4140",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "EJE-EN-ACERO-4140"
+      },
+      {
+        "tipo": "",
+        "referencia": "VENTILADOR EN ALUMINIO TC 200 Y MAQUINADO",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "VENTILADOR-EN-ALUMINIO-TC-200-Y-MAQUINADO"
+      },
+      {
+        "tipo": "",
+        "referencia": "RODAMIENTOS REF:6314 C4 - 6314 M C4 VL0241",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "RODAMIENTOS-REF:6314-C4---6314-M-C4-VL0241"
+      },
+      {
+        "tipo": "",
+        "referencia": "THERMISTORES",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "THERMISTORES"
+      },
+      {
+        "tipo": "",
+        "referencia": "V-RING ø 70mm",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "V-RING-ø-70mm"
+      }
+    ],
+    "fechasClave": {
+      "ingreso": "2024-01-06",
+      "informe": "2024-03-01",
+      "entrega": "2024-02-28",
+      "firma": null
+    },
+    "recomendaciones": {
+      "especificas": [],
+      "generales": [
+        "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo y sistema de arranque",
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga",
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas de aislamiento y vibraciones",
+        "Realice análisis de vibración al arranque y seguimientos programados",
+        "Lugar cerrado y libre de humedad",
+        "Para almacenamiento prolongado, rotar eje mensualmente"
+      ]
+    },
+    "normativas": [],
+    "cliente": "FAMILIA DEL PACIFICO SAS",
+    "tipoFalla": "CORTO ENTRE ESPIRAS POR ARRASTRE",
+    "estadoReparacion": "El motor cumple con las especificaciones de la placa características",
+    "textoCompleto": "Motor marca: WEG, potencia: 250.00 KW, tension: 460 V, corriente: 404 Amp. Servicio: REPARACION-BOBINADO - SERVICIO REPARACION - BOBINADO DE MOTOR DE 250 KW A 3590 RPM 1377CFM TRABAJOS CONSECUENTES. Procedimientos: DESARMADO, REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS; PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR; REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS; ARMADO DE MOTOR Y PRUEBAS FINALES; SUMINISTRO DE CABLE PARA BOBINADO; REPARACION DE NUCLEO; CONSTRUCCION DE EJE EN ACERO 4140; EMBUJADA DE ESCUDO L.V.; SUMINISTRO DE VENTILADOR EN ALUMINIO TC 200 Y MAQUINADO; BALANCEO DINAMICO EN CONJUNTO; EMBUJADO DE FLANCHE INTERNO LV; RECTIFICADO DE FLANCHE EXTERIOR LV; FABRICACION DE AGUJEROS Y CUADRANTES A ESCUDO LV; FABRICACION DE CUÑA; RODAMIENTOS REF:6314 C4 - 6314 M C4 VL0241; SUMINISTRO DE THERMISTORES; SUMINISTRO DE V-RING ø 70mm; SUMINISTRO DE CHAVETA PARA EJE DE 70mm. Recomendaciones: especificas - ; generales - Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga; Revise instalación eléctrica; Verifique sistema de protección; Prueba de aislamiento con Megger; Verifique conexión a tierra; Verifique tensión de trabajo y sistema de arranque; Use herramientas adecuadas; Correcto anclaje y alineación; Alineación con equipo láser; Balanceo de carga; Verifique sentido de giro; Inspeccione lubricación; Mantenga rutas de lubricación; Mediciones periódicas de aislamiento y vibraciones; Realice análisis de vibración al arranque y seguimientos programados; Lugar cerrado y libre de humedad; Para almacenamiento prolongado, rotar eje mensualmente. Falla: CORTO ENTRE ESPIRAS POR ARRASTRE - . Estado reparación: El motor cumple con las especificaciones de la placa características. Fechas: inicio - 2024-01-06, fin - 2024-02-28. Normativas: . Cliente: FAMILIA DEL PACIFICO SAS."
+  },
+  {
+    "archivo": "F47920424.pdf",
+    "datosTecnicos": {
+      "marca": "N.I (No Identificada)",
+      "modelo": "",
+      "potencia": "2.20 KW",
+      "tension": "230-460 V",
+      "corriente": "7.8-4.4 Amp",
+      "frecuencia": "60 Hz",
+      "fases": "3",
+      "rpm": "2840",
+      "frame": "90L",
+      "proteccion": "IP55",
+      "claseAislamiento": "",
+      "maquinaAsociada": "VEMAG 1",
+      "tipoEquipo": "MOTORBLOWER",
+      "identificacionEquipo": ""
+    },
+    "servicio": {
+      "tipo": "MANTENIMIENTO",
+      "descripcion": "SERVICIO MANTENIMIENTO DE MOTORES BLOWERS DESCONGELADOR MOREP",
+      "procedimientos": [
+        "DESARMADO, LAVADO, SECADO, REBARNIZADO DE ESTATOR",
+        "PRUEBAS ELÉCTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADO DE ESCUDO L.C. Y L.V.",
+        "SUMINISTRO DE RODAMIENTOS 6208 ZZ C3 MARCA SKF",
+        "BALANCEO DINAMICO EN CONJUNTO"
+      ],
+      "diagnostico": {
+        "tipoFalla": "",
+        "descripcionFalla": "",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": " (Mínimo: )",
+        "altaTension": "Pasó (2500 Vdc)",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: , Corriente: "
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        ""
+      ]
+    },
+    "repuestos": [],
+    "fechasClave": {
+      "ingreso": "2024-03-27",
+      "informe": "2024-04-10",
+      "entrega": "2024-03-28",
+      "firma": null
+    },
+    "recomendaciones": {
+      "especificas": [],
+      "generales": [
+        "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo y sistema de arranque",
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga",
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas de aislamiento y vibraciones",
+        "Realice análisis de vibración al arranque y seguimientos programados",
+        "Lugar cerrado y libre de humedad",
+        "Para almacenamiento prolongado, rotar eje mensualmente"
+      ]
+    },
+    "normativas": [],
+    "cliente": "ALIMENTOS CARNICOS S A S",
+    "tipoFalla": "",
+    "estadoReparacion": "El motor cumple con las especificaciones de la placa características",
+    "textoCompleto": "Motor marca: N.I (No Identificada), potencia: 2.20 KW, tension: 230-460 V, corriente: 7.8-4.4 Amp. Servicio: MANTENIMIENTO - SERVICIO MANTENIMIENTO DE MOTORES BLOWERS DESCONGELADOR MOREP. Procedimientos: DESARMADO, LAVADO, SECADO, REBARNIZADO DE ESTATOR; PRUEBAS ELÉCTRICAS CON EQUIPO BAKER A ESTATOR; REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS; ARMADO DE MOTOR Y PRUEBAS FINALES; EMBUJADO DE ESCUDO L.C. Y L.V.; SUMINISTRO DE RODAMIENTOS 6208 ZZ C3 MARCA SKF; BALANCEO DINAMICO EN CONJUNTO. Recomendaciones: especificas - ; generales - Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga; Revise instalación eléctrica; Verifique sistema de protección; Prueba de aislamiento con Megger; Verifique conexión a tierra; Verifique tensión de trabajo y sistema de arranque; Use herramientas adecuadas; Correcto anclaje y alineación; Alineación con equipo láser; Balanceo de carga; Verifique sentido de giro; Inspeccione lubricación; Mantenga rutas de lubricación; Mediciones periódicas de aislamiento y vibraciones; Realice análisis de vibración al arranque y seguimientos programados; Lugar cerrado y libre de humedad; Para almacenamiento prolongado, rotar eje mensualmente. Falla:  - . Estado reparación: El motor cumple con las especificaciones de la placa características. Fechas: inicio - 2024-03-27, fin - 2024-03-28. Normativas: . Cliente: ALIMENTOS CARNICOS S A S."
+  },
+  {
+    "archivo": "F48320424.pdf",
+    "datosTecnicos": {
+      "marca": "WEG",
+      "modelo": "",
+      "potencia": "20 HP",
+      "tension": "220/440 V",
+      "corriente": "49.8/24.9 AMP",
+      "frecuencia": "60 Hz",
+      "fases": "3",
+      "rpm": "3535",
+      "frame": "160 M",
+      "proteccion": "IP55",
+      "claseAislamiento": "",
+      "maquinaAsociada": "CALDERA #1",
+      "tipoEquipo": "MOTOR",
+      "identificacionEquipo": ""
+    },
+    "servicio": {
+      "tipo": "REPARACION-BOBINADO",
+      "descripcion": "BOBINADO DE MOTOR DE 20 HP A 3353",
+      "procedimientos": [
+        "DESARMADO, REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADA DE ESCUDO L.V.",
+        "RODAMIENTOS REF:6309 ZZ C3 - 6209 ZZ C3 MARCA SKF",
+        "SUMINISTRO DE VENTILADOR PLASTICO WEG 160",
+        "CAMBIO E INSTALACION DE BORNERA G-33B",
+        "ADAPTACION DE BORNERA",
+        "SUMINISTRO DE THERMISTORES",
+        "SUMINISTRO DE V-RING ø 45mm",
+        "FABRIACION DE EMPAQUES"
+      ],
+      "diagnostico": {
+        "tipoFalla": "SOBRECARGA",
+        "descripcionFalla": "",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": " (Mínimo: )",
+        "altaTension": "Pasó (2500 Vdc)",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: , Corriente: "
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        ""
+      ]
+    },
+    "repuestos": [],
+    "fechasClave": {
+      "ingreso": "2024-04-03",
+      "informe": "2024-04-27",
+      "entrega": "2024-04-22",
+      "firma": null
+    },
+    "recomendaciones": {
+      "especificas": [],
+      "generales": [
+        "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "Revise instalación eléctrica",
+        "Verifique sistema de protección",
+        "Prueba de aislamiento con Megger",
+        "Verifique conexión a tierra",
+        "Verifique tensión de trabajo y sistema de arranque",
+        "Use herramientas adecuadas",
+        "Correcto anclaje y alineación",
+        "Alineación con equipo láser",
+        "Balanceo de carga",
+        "Verifique sentido de giro",
+        "Inspeccione lubricación",
+        "Mantenga rutas de lubricación",
+        "Mediciones periódicas de aislamiento y vibraciones",
+        "Realice análisis de vibración al arranque y seguimientos programados",
+        "Lugar cerrado y libre de humedad",
+        "Para almacenamiento prolongado, rotar eje mensualmente"
+      ]
+    },
+    "normativas": [],
+    "cliente": "QUIMPAC DE COLOMBIA SA",
+    "tipoFalla": "SOBRECARGA",
+    "estadoReparacion": "El motor cumple con las especificaciones de la placa características",
+    "textoCompleto": "Motor marca: WEG, potencia: 20 HP, tension: 220/440 V, corriente: 49.8/24.9 AMP. Servicio: REPARACION-BOBINADO - BOBINADO DE MOTOR DE 20 HP A 3353. Procedimientos: DESARMADO, REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS; PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR; REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS; ARMADO DE MOTOR Y PRUEBAS FINALES; EMBUJADA DE ESCUDO L.V.; RODAMIENTOS REF:6309 ZZ C3 - 6209 ZZ C3 MARCA SKF; SUMINISTRO DE VENTILADOR PLASTICO WEG 160; CAMBIO E INSTALACION DE BORNERA G-33B; ADAPTACION DE BORNERA; SUMINISTRO DE THERMISTORES; SUMINISTRO DE V-RING ø 45mm; FABRIACION DE EMPAQUES. Recomendaciones: especificas - ; generales - Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga; Revise instalación eléctrica; Verifique sistema de protección; Prueba de aislamiento con Megger; Verifique conexión a tierra; Verifique tensión de trabajo y sistema de arranque; Use herramientas adecuadas; Correcto anclaje y alineación; Alineación con equipo láser; Balanceo de carga; Verifique sentido de giro; Inspeccione lubricación; Mantenga rutas de lubricación; Mediciones periódicas de aislamiento y vibraciones; Realice análisis de vibración al arranque y seguimientos programados; Lugar cerrado y libre de humedad; Para almacenamiento prolongado, rotar eje mensualmente. Falla: SOBRECARGA - . Estado reparación: El motor cumple con las especificaciones de la placa características. Fechas: inicio - 2024-04-03, fin - 2024-04-22. Normativas: . Cliente: QUIMPAC DE COLOMBIA SA."
+  },
+  {
+    "archivo": "F41631223.pdf",
+    "datosTecnicos": {
+      "marca": "G. TORTI",
+      "modelo": "F4163",
+      "potencia": "0.30 KW",
+      "tension": "230 - 440 V",
+      "corriente": "2.25 – 1.3 Amp",
+      "frecuencia": "50 Hz",
+      "fases": "3",
+      "rpm": "2800",
+      "frame": "N.I",
+      "proteccion": "",
+      "claseAislamiento": "",
+      "maquinaAsociada": "",
+      "tipoEquipo": "BLOWER",
+      "identificacionEquipo": ""
+    },
+    "servicio": {
+      "tipo": "REPARACION-BOBINADO",
+      "descripcion": "",
+      "procedimientos": [
+        "DESARMADO",
+        "REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS",
+        "PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR",
+        "REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS",
+        "ARMADO DE MOTOR Y PRUEBAS FINALES",
+        "EMBUJADO ESCUDO L.C. Y L.V.",
+        "RODAMIENTOS REF:6000 2RS C3 MARCA SKF",
+        "BALANCEO DINAMICO EN CONJUNTO"
+      ],
+      "diagnostico": {
+        "tipoFalla": "SOBRECARGA",
+        "descripcionFalla": "",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": " (Mínimo: )",
+        "altaTension": " ()",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: , Corriente: "
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        ""
+      ]
+    },
+    "repuestos": [
+      {
+        "tipo": "",
+        "referencia": "RODAMIENTOS REF:6000 2RS C3 MARCA SKF",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "RODAMIENTOS-REF:6000-2RS-C3-MARCA-SKF"
+      }
+    ],
+    "fechasClave": {
+      "ingreso": "2023-11-02",
+      "informe": "2023-12-05",
+      "entrega": "2023-12-01",
+      "firma": null
+    },
+    "recomendaciones": {
+      "especificas": [],
+      "generales": []
+    },
+    "normativas": [],
+    "cliente": "AMCOR FLEXIBLES CALI SAS",
+    "tipoFalla": "SOBRECARGA",
+    "estadoReparacion": "Verificado",
+    "textoCompleto": "Motor marca: G. TORTI, potencia: 0.30 KW, tension: 230 - 440 V, corriente: 2.25 – 1.3 Amp. Servicio: REPARACION-BOBINADO - . Procedimientos: DESARMADO; REBOBINADO DE ESTATOR EN AISLAMIENTO CLASE H 180 GRADOS; PRUEBAS ELECTRICAS CON EQUIPO BAKER A ESTATOR; REVISION DE AJUSTES Y TOLERANCIAS EN EJE Y ESCUDOS; ARMADO DE MOTOR Y PRUEBAS FINALES; EMBUJADO ESCUDO L.C. Y L.V.; RODAMIENTOS REF:6000 2RS C3 MARCA SKF; BALANCEO DINAMICO EN CONJUNTO. Recomendaciones: especificas - ; generales - . Falla: SOBRECARGA - . Estado reparación: Verificado. Fechas: inicio - 2023-11-02, fin - 2023-12-01. Normativas: . Cliente: AMCOR FLEXIBLES CALI SAS."
+  },
+  {
+    "archivo": "F47890424.pdf",
+    "datosTecnicos": {
+      "marca": "VEM",
+      "modelo": "",
+      "potencia": "2.60 KW",
+      "tension": "275 - 460 V",
+      "corriente": "10 – 6.3 Amp",
+      "frecuencia": "",
+      "fases": "3",
+      "rpm": "",
+      "frame": "N.I",
+      "proteccion": "",
+      "claseAislamiento": "",
+      "maquinaAsociada": "",
+      "tipoEquipo": "MOTORBLOWER",
+      "identificacionEquipo": ""
+    },
+    "servicio": {
+      "tipo": "MANTENIMIENTO",
+      "descripcion": "",
+      "procedimientos": [],
+      "diagnostico": {
+        "tipoFalla": "SOBRECARGA",
+        "descripcionFalla": "",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": " (Mínimo: )",
+        "altaTension": " ()",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: , Corriente: "
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        ""
+      ]
+    },
+    "repuestos": [
+      {
+        "tipo": "",
+        "referencia": "RODAMIENTOS REF:6208 ZZ C3 MARCA SKF",
+        "marca": "",
+        "cantidad": 1,
+        "codigoStandard": "RODAMIENTOS-REF:6208-ZZ-C3-MARCA-SKF"
+      }
+    ],
+    "fechasClave": {
+      "ingreso": "2024-03-27",
+      "informe": "2024-04-10",
+      "entrega": "2024-03-28",
+      "firma": null
+    },
+    "recomendaciones": {
+      "especificas": [],
+      "generales": [
+        "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "Revise que la instalación eléctrica no se encuentre defectuosa o inadecuada",
+        "Revise que el sistema de protección sea conforme con el equipo",
+        "Realice una prueba de aislamiento a tierra con Megger (Compare resultado con el informe técnico o con normas de aislamiento)",
+        "Revise que la línea de conexión al sistema de aterrizaje este debidamente conectada por seguridad del equipo y del personal",
+        "Verifique tensión de trabajo y correspondencia entre tensión, conexión y/o sistema de arranque",
+        "Use las herramientas adecuadas para la tarea",
+        "Realice un correcto anclaje y alineación del equipo",
+        "Realizar la alineación con equipo de rayo laser",
+        "Verifique que la carga se encuentre balanceada para evitar vibraciones anormales",
+        "Revise que el sentido de giro este en la dirección correcta",
+        "Inspeccione la lubricación o relubrique si es el caso",
+        "Use correctas prácticas de lubricación",
+        "Para motores con sistema de lubricación habilitado, mantenga la ruta de lubricación",
+        "Realice mediciones de resistencia de aislamiento y de vibraciones periódicamente",
+        "Realice análisis de vibración al momento del arranque, después a los dos días, otra a los cuatro días después de la prueba anterior, luego otra prueba a los 15 días después de la tercera prueba y luego hacer rutas cada 3 meses",
+        "Si el motor se va a almacenar, se recomienda ubicarlo en un lugar cerrado y libre de humedad hasta el momento de la instalación",
+        "Si se va a almacenar a largo plazo, rote el eje por lo menos una vez al mes para mantener una capa del lubricante en las pistas del rodamiento y para minimizar la posibilidad de desgaste por peso del rotor"
+      ]
+    },
+    "normativas": [],
+    "cliente": "ALIMENTOS CARNICOS S A S",
+    "tipoFalla": "SOBRECARGA",
+    "estadoReparacion": "De acuerdo a las pruebas realizadas (verificaciones y cálculos) el motor cumple con las especificaciones de la placa características",
+    "textoCompleto": "Motor marca: VEM, potencia: 2.60 KW, tension: 275 - 460 V, corriente: 10 – 6.3 Amp. Servicio: MANTENIMIENTO - . Procedimientos: . Recomendaciones: especificas - ; generales - Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga; Revise que la instalación eléctrica no se encuentre defectuosa o inadecuada; Revise que el sistema de protección sea conforme con el equipo; Realice una prueba de aislamiento a tierra con Megger (Compare resultado con el informe técnico o con normas de aislamiento); Revise que la línea de conexión al sistema de aterrizaje este debidamente conectada por seguridad del equipo y del personal; Verifique tensión de trabajo y correspondencia entre tensión, conexión y/o sistema de arranque; Use las herramientas adecuadas para la tarea; Realice un correcto anclaje y alineación del equipo; Realizar la alineación con equipo de rayo laser; Verifique que la carga se encuentre balanceada para evitar vibraciones anormales; Revise que el sentido de giro este en la dirección correcta; Inspeccione la lubricación o relubrique si es el caso; Use correctas prácticas de lubricación; Para motores con sistema de lubricación habilitado, mantenga la ruta de lubricación; Realice mediciones de resistencia de aislamiento y de vibraciones periódicamente; Realice análisis de vibración al momento del arranque, después a los dos días, otra a los cuatro días después de la prueba anterior, luego otra prueba a los 15 días después de la tercera prueba y luego hacer rutas cada 3 meses; Si el motor se va a almacenar, se recomienda ubicarlo en un lugar cerrado y libre de humedad hasta el momento de la instalación; Si se va a almacenar a largo plazo, rote el eje por lo menos una vez al mes para mantener una capa del lubricante en las pistas del rodamiento y para minimizar la posibilidad de desgaste por peso del rotor. Falla: SOBRECARGA - . Estado reparación: De acuerdo a las pruebas realizadas (verificaciones y cálculos) el motor cumple con las especificaciones de la placa características. Fechas: inicio - 2024-03-27, fin - 2024-03-28. Normativas: . Cliente: ALIMENTOS CARNICOS S A S."
+  },
+  {
+    "archivo": "F47910424.pdf",
+    "datosTecnicos": {
+      "marca": "MARATHON",
+      "modelo": "",
+      "potencia": "2.20 HP",
+      "tension": "440 V",
+      "corriente": "4.69 Amp",
+      "frecuencia": "",
+      "fases": "3",
+      "rpm": "",
+      "frame": "N.I",
+      "proteccion": "",
+      "claseAislamiento": "",
+      "maquinaAsociada": "",
+      "tipoEquipo": "MOTOR BLOWER",
+      "identificacionEquipo": ""
+    },
+    "servicio": {
+      "tipo": "MANTENIMIENTO",
+      "descripcion": "",
+      "procedimientos": [],
+      "diagnostico": {
+        "tipoFalla": "",
+        "descripcionFalla": "",
+        "causaRaiz": ""
+      }
+    },
+    "pruebas": {
+      "electricas": {
+        "aislamientoTierra": " (Mínimo: )",
+        "altaTension": " ()",
+        "impulso": "OK",
+        "pruebaVacio": "Tensión: , Corriente: "
+      },
+      "mecanicas": {
+        "vibracion": "Ajustes dentro de rango",
+        "temperatura": {
+          "rodamientoLC": "",
+          "carcasa": "",
+          "cumpleLimites": true
+        }
+      },
+      "equiposUtilizados": [
+        ""
+      ]
+    },
+    "repuestos": [],
+    "fechasClave": {
+      "ingreso": "2024-03-27",
+      "informe": "2024-04-10",
+      "entrega": "2024-03-28",
+      "firma": null
+    },
+    "recomendaciones": {
+      "especificas": [],
+      "generales": [
+        "Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga",
+        "Revise que la instalación eléctrica no se encuentre defectuosa o inadecuada",
+        "Revise que el sistema de protección sea conforme con el equipo",
+        "Realice una prueba de aislamiento a tierra con Megger (Compare resultado con el informe técnico o con normas de aislamiento)",
+        "Revise que la línea de conexión al sistema de aterrizaje este debidamente conectada por seguridad del equipo y del personal",
+        "Verifique tensión de trabajo y correspondencia entre tensión, conexión y/o sistema de arranque",
+        "Use las herramientas adecuadas para la tarea",
+        "Realice un correcto anclaje y alineación del equipo",
+        "Realizar la alineación con equipo de rayo laser",
+        "Verifique que la carga se encuentre balanceada para evitar vibraciones anormales",
+        "Revise que el sentido de giro este en la dirección correcta",
+        "Inspeccione la lubricación o relubrique si es el caso",
+        "Use correctas prácticas de lubricación",
+        "Para motores con sistema de lubricación habilitado, mantenga la ruta de lubricación",
+        "Realice mediciones de resistencia de aislamiento y de vibraciones periódicamente",
+        "Realice análisis de vibración al momento del arranque, después a los dos días, otra a los cuatro días después de la prueba anterior, luego otra prueba a los 15 días después de la tercera prueba y luego hacer rutas cada 3 meses",
+        "Si el motor se va a almacenar, se recomienda ubicarlo en un lugar cerrado y libre de humedad hasta el momento de la instalación",
+        "Si se va a almacenar a largo plazo, rote el eje por lo menos una vez al mes para mantener una capa del lubricante en las pistas del rodamiento y para minimizar la posibilidad de desgaste por peso del rotor"
+      ]
+    },
+    "normativas": [],
+    "cliente": "ALIMENTOS CARNICOS S A S",
+    "tipoFalla": "",
+    "estadoReparacion": "De acuerdo a las pruebas realizadas (verificaciones y cálculos) el motor cumple con las especificaciones de la placa características",
+    "textoCompleto": "Motor marca: MARATHON, potencia: 2.20 HP, tension: 440 V, corriente: 4.69 Amp. Servicio: MANTENIMIENTO - . Procedimientos: . Recomendaciones: especificas - ; generales - Motores con rodamientos cilíndricos rodillos se deben probar con al menos 4% de carga; Revise que la instalación eléctrica no se encuentre defectuosa o inadecuada; Revise que el sistema de protección sea conforme con el equipo; Realice una prueba de aislamiento a tierra con Megger (Compare resultado con el informe técnico o con normas de aislamiento); Revise que la línea de conexión al sistema de aterrizaje este debidamente conectada por seguridad del equipo y del personal; Verifique tensión de trabajo y correspondencia entre tensión, conexión y/o sistema de arranque; Use las herramientas adecuadas para la tarea; Realice un correcto anclaje y alineación del equipo; Realizar la alineación con equipo de rayo laser; Verifique que la carga se encuentre balanceada para evitar vibraciones anormales; Revise que el sentido de giro este en la dirección correcta; Inspeccione la lubricación o relubrique si es el caso; Use correctas prácticas de lubricación; Para motores con sistema de lubricación habilitado, mantenga la ruta de lubricación; Realice mediciones de resistencia de aislamiento y de vibraciones periódicamente; Realice análisis de vibración al momento del arranque, después a los dos días, otra a los cuatro días después de la prueba anterior, luego otra prueba a los 15 días después de la tercera prueba y luego hacer rutas cada 3 meses; Si el motor se va a almacenar, se recomienda ubicarlo en un lugar cerrado y libre de humedad hasta el momento de la instalación; Si se va a almacenar a largo plazo, rote el eje por lo menos una vez al mes para mantener una capa del lubricante en las pistas del rodamiento y para minimizar la posibilidad de desgaste por peso del rotor. Falla:  - . Estado reparación: De acuerdo a las pruebas realizadas (verificaciones y cálculos) el motor cumple con las especificaciones de la placa características. Fechas: inicio - 2024-03-27, fin - 2024-03-28. Normativas: . Cliente: ALIMENTOS CARNICOS S A S."
+  }
+]

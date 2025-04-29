@@ -1,8 +1,28 @@
+from app.ollama_client import OllamaClient
+import os
+
+_ollama_client = None
+
+def get_ollama_client():
+    """Obtiene o crea el cliente Ollama (singleton)"""
+    global _ollama_client
+    
+    if _ollama_client is None:
+        ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434" ) ##"http://ollama:11434"
+        _ollama_client = OllamaClient(host=ollama_host)
+    
+    return _ollama_client
+
+
+
+
+
+
 # import os
 # import torch
 # from transformers import AutoModelForCausalLM, AutoTokenizer
-from .ollama_client import OllamaClient
-import os
+# from app.ollama_client import OllamaClient
+# import os
 
 # ### ✅ Configuración del modelo
 # MODEL_REPO = os.getenv("MODEL_REPO", "fcp2207/Modelo_Phi2_fusionado")  
@@ -10,144 +30,47 @@ import os
 # os.makedirs(CACHE_DIR, exist_ok=True)
 
 # ✅ Definir variable global para almacenar el modelo y tokenizer
-_model = None
-_tokenizer = None
-_device = None
-
-def load_model():
-    """Carga el modelo una sola vez y lo reutiliza"""
-    global _model, _tokenizer, _device
-######Esto es para prueebas en local
-    # system_instruction = ("Eres un experto en motores electricos con 25 años de experiencia y todas tus respuestas son en español")
-    
-    # _model = OllamaClient(model_name='mistral:latest',
-    #                       system_instruction=system_instruction)
-
-######Esto es para despliegue en docker
-    system_instruction = ("Eres un experto en motores electricos con 25 años de experiencia y todas tus respuestas son en español")
-    ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")  # Usa la variable de entorno o localhost por defecto
-    _model = OllamaClient(model_name='mistral:latest',
-                          system_instruction=system_instruction,
-                          host=ollama_host)
-
-
-    
-
-    # if _model is None or _tokenizer is None:  # 🚀 Evita recargar si ya está en memoria
-    #     print("🔄 Cargando el modelo desde Hugging Face...")
-    #     try:
-    #         _model = AutoModelForCausalLM.from_pretrained(
-    #             MODEL_REPO,
-    #             torch_dtype=torch.float16 if torch.cuda.is_available() else torch.bfloat16, #torch.float32,  
-    #             device_map="auto" if torch.cuda.is_available() else None,  
-    #             cache_dir=CACHE_DIR
-    #         )
-
-    #         _tokenizer = AutoTokenizer.from_pretrained(MODEL_REPO, cache_dir=CACHE_DIR)
-
-    #         if _tokenizer.pad_token is None:
-    #             _tokenizer.pad_token = _tokenizer.eos_token
-    #             _model.config.pad_token_id = _tokenizer.eos_token_id
-
-    #         torch.compile(_model)
-    #         _model.to(_device)  # 🔄 Mover a CPU/GPU según configuración
-
-    #         print(f"✅ Modelo cargado en {_device}.")
-    #     except Exception as e:
-    #         print(f"❌ Error al cargar el modelo: {str(e)}")
-    #         _model, _tokenizer = None, None
-
-    return _model, _tokenizer, _device
-
-
-if __name__ == "__main__":
-    #  ollama_client = OllamaClient(model_name='mistral:latest')
-    list_models = OllamaClient.list_models()
-    print(list_models)
-
-########### IMPORT HUGGING FACE
-# import os
-# import torch
-# from transformers import AutoModelForCausalLM, AutoTokenizer
-
-# # ✅ Configuración del modelo
-# MODEL_REPO = os.getenv("MODEL_REPO", "fcp2207/Modelo_Phi2_fusionado")  
-# CACHE_DIR = os.getenv("HF_HOME", "/app/cache")  
-# os.makedirs(CACHE_DIR, exist_ok=True)
-
-# # ✅ Definir variable global para almacenar el modelo y tokenizer
 # _model = None
 # _tokenizer = None
-# _device =  torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# _device = None
 
 # def load_model():
 #     """Carga el modelo una sola vez y lo reutiliza"""
 #     global _model, _tokenizer, _device
+# ######Esto es para prueebas en local
+#     # system_instruction = ("Eres un experto en motores electricos con 25 años de experiencia y todas tus respuestas son en español")
+    
+#     # _model = OllamaClient(model_name='mistral:latest',
+#     #                       system_instruction=system_instruction)
 
-#     if _model is None or _tokenizer is None:  # 🚀 Evita recargar si ya está en memoria
-#         print("🔄 Cargando el modelo desde Hugging Face...")
-#         try:
-#             _model = AutoModelForCausalLM.from_pretrained(
-#                 MODEL_REPO,
-#                 torch_dtype=torch.float16 if torch.cuda.is_available() else torch.bfloat16, #torch.float32,  
-#                 device_map="auto" if torch.cuda.is_available() else None,  
-#                 cache_dir=CACHE_DIR
-#             )
-
-#             _tokenizer = AutoTokenizer.from_pretrained(MODEL_REPO, cache_dir=CACHE_DIR)
-
-#             if _tokenizer.pad_token is None:
-#                 _tokenizer.pad_token = _tokenizer.eos_token
-#                 _model.config.pad_token_id = _tokenizer.eos_token_id
-
-#             torch.compile(_model)
-#             _model.to(_device)  # 🔄 Mover a CPU/GPU según configuración
-
-#             print(f"✅ Modelo cargado en {_device}.")
-#         except Exception as e:
-#             print(f"❌ Error al cargar el modelo: {str(e)}")
-#             _model, _tokenizer = None, None
+# ######Esto es para despliegue en docker
+#     # system_instruction = ("Eres un experto en motores electricos con 25 años de experiencia y todas tus respuestas son en español")
+#     ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")  # Usa la variable de entorno o localhost por defecto
+#     _model = OllamaClient(model_name='mistral:latest',
+#                         #   system_instruction=system_instruction,
+#                           host=ollama_host)
 
 #     return _model, _tokenizer, _device
-
-######## NO SIRVE PA NADA
-# import os
-# import torch
-# from transformers import AutoModelForCausalLM, AutoTokenizer
-
-# # ✅ Configuración
-# MODEL_REPO = os.getenv("MODEL_REPO", "fcp2207/Modelo_Phi2_fusionado")  
-# CACHE_DIR = os.getenv("HF_HOME", "/app/cache")  
-# os.makedirs(CACHE_DIR, exist_ok=True)
-
-# # ✅ Detectar GPU
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# # ✅ Cargar el modelo solo una vez
-# print("🔄 Cargando el modelo desde Hugging Face...")
-# try:
-#     model = AutoModelForCausalLM.from_pretrained(
-#         MODEL_REPO, 
-#         torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,  
-#         device_map="auto" if torch.cuda.is_available() else None,  
-#         cache_dir=CACHE_DIR
-#     )
-
-#     tokenizer = AutoTokenizer.from_pretrained(MODEL_REPO, cache_dir=CACHE_DIR)
-
-#     if tokenizer.pad_token is None:
-#         tokenizer.pad_token = tokenizer.eos_token
-#         model.config.pad_token_id = tokenizer.eos_token_id
-
-#     print(f"✅ Modelo cargado en {device}.")
-# except Exception as e:
-#     print(f"❌ Error al cargar el modelo: {str(e)}")
-#     model, tokenizer = None, None
-
-# # ✅ Exportamos el modelo y tokenizer
-# def get_model():
-#     return model, tokenizer, device
+# # Variables globales para singleton
+# _ollama_client = None
 
 
+# def load_model():
+#     """Inicializa el cliente de Ollama sin modelo específico"""
+#     global _ollama_client
+    
+#     if _ollama_client is None:
+#         ollama_host = os.getenv("OLLAMA_HOST", "http://ollama:11434")
+#         _ollama_client = OllamaClient(model_name=None, host=ollama_host)
+    
+#     return _ollama_client, None, None  # Mantenemos la misma interfaz
 
+# def get_ollama_client():
+#     """Helper para acceso directo al cliente"""
+#     return load_model()[0]
+
+# if __name__ == "__main__":
+#     #  ollama_client = OllamaClient(model_name='mistral:latest')
+#     list_models = OllamaClient.list_models()
+#     print(list_models)
 

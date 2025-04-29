@@ -1,509 +1,939 @@
-import faiss
-import numpy as np
-import json
 import os
-import pickle
-from sentence_transformers import SentenceTransformer
-from collections import defaultdict, Counter
-import re
+import json
+from datetime import datetime
+import weaviate 
+from weaviate.classes.init import Auth 
+from weaviate.classes.config import Property, DataType, Configure
+from weaviate.classes.query import Filter, MetadataQuery, HybridFusion
+# from dotenv import load_dotenv
+from typing import Dict, Any, List, Optional, Union
 from pathlib import Path
+from datetime import datetime
+import re
+from transformers import AutoTokenizer, T5Tokenizer, AutoModelForSeq2SeqLM, pipeline, MT5ForConditionalGeneration
+import torch 
+# from sentence_transformers import SentenceTransformer, util
 
-class EmbeddingStore:
-    def __init__(self):
+# Configuración inicial
+# load_dotenv()
+# WEAVIATE_URL = os.getenv("WEAVIATE_URL", "http://localhost:8080")
+# WEAVIATE_API_KEY = os.getenv("WEAVIATE_API_KEY", "")
+WEAVIATE_URL="lf7q3y8tzotv3z7utntlq.c0.us-west3.gcp.weaviate.cloud"
+WEAVIATE_API_KEY="vzhBZ5BPvedzthoiY3eZ3XIn3KFJp3KJDZBz"
+INPUT_FOLDER = str(Path(__file__).resolve().parent.parent / "data")
+OUTPUT_FOLDER = str(Path(__file__).resolve().parent.parent / "data" / "informes_transformados")
+CLASS_NAME = 'InformesMotores'
+STOPWORDS = {"se", "de", "la", "el", "en", "del", "una", "un", "lo", "al", "que", "tipo", "con", "archivos"}
+PROPIEDADES = {
+    "marca": {"tipo": "texto", "claves": ["marca", "fabricante"]},
+    "tipoFalla": {"tipo": "texto", "claves": ["falla", "problema", "avería"]},
+    "tipoServicio": {"tipo": "texto", "claves": ["servicio", "mantenimiento"]},
+    "cliente": {"tipo": "texto", "claves": ["cliente", "empresa"]},
+    "estadoReparacion": {"tipo": "texto", "claves": ["estado", "reparación"]},
+    "potencia": {"tipo": "unidad", "claves": ["potencia"]},
+    "tension": {"tipo": "unidad", "claves": ["tensión", "voltaje"]},
+    "fechaInicio": {"tipo": "fecha", "claves": ["fecha", "inicio", "fechaInicio"]},
+}
+VALORES_INVALIDOS = {"motor", "equipo", "máquina", "sistema"}
+UNIDADES = {
+    "potencia": {"hp", "kw", "kilowatts", "caballos"},
+    "tension": {"v", "voltios", "voltaje"}
+}
 
-        # Construir la ruta relativa
-        data_path = str(Path(__file__).resolve().parent.parent / "data" / "data.json")
-        index_path = str(Path(__file__).resolve().parent.parent / "data" / "faiss_index.bin")
-        docs_path = str(Path(__file__).resolve().parent.parent / "data" / "docs.pkl")
+# Configuración del cliente Weaviate
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=WEAVIATE_URL,                     # Weaviate URL: "REST Endpoint" in Weaviate Cloud console
+    auth_credentials=Auth.api_key(WEAVIATE_API_KEY),  # Weaviate API key: "ADMIN" API key in Weaviate Cloud console
+)
 
-        """Inicializa el almacén de embeddings con la ruta al JSON"""
-        self.model = SentenceTransformer("all-mpnet-base-v2")
-        self.index = None
-        self.docs = []
-        self.technical_terms = set()
-        self.json_path = data_path #json_path
-        self.INDEX_FILE = index_path #"backend/data/faiss_index.bin"
-        self.DOCS_FILE = docs_path #"backend/data/docs.pkl"
-        self.load_or_create_index()
+# Carga un modelo especializado para reformular queries
+model_name = "unicamp-dl/mmarco-mMiniLMv2-L6-H384-v1" #'BeIR/query-gen-multilingual-t5-base'
+tokenizer  =  AutoTokenizer.from_pretrained(model_name)
+model      = MT5ForConditionalGeneration.from_pretrained(model_name)
+# tokenizer = AutoTokenizer.from_pretrained("unicamp-dl/mt5-base-mmarco-pt-msmarco")
+# model = AutoModelForSeq2SeqLM.from_pretrained("unicamp-dl/mt5-base-mmarco-pt-msmarco")
+# tokenizer = AutoTokenizer.from_pretrained("BeIR/query-gen-msmarco-t5-base-v1", use_fast=False)
+# model = AutoModelForSeq2SeqLM.from_pretrained("BeIR/query-gen-msmarco-t5-base-v1")
 
-    def load_or_create_index(self):
-        """Carga o crea el índice FAISS"""
-        if os.path.exists(self.INDEX_FILE) and os.path.exists(self.DOCS_FILE):
-            self.load_index()
+
+generator = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
+
+def crear_esquema_weaviate():
+    try:
+        # Obtener la lista de colecciones existentes
+        existing_collections = client.collections.list_all()
+
+        # Verificar si la colección ya existe
+        if CLASS_NAME in existing_collections:
+            print("ℹ️ Esquema ya existe en Weaviate")
         else:
-            self.create_index()
-            if os.path.exists(self.json_path):
-                self.load_json_data()
+            # Crear la colección
+            client.collections.create(
+                name=CLASS_NAME,
+                properties=[
+                    Property(name="archivo", data_type=DataType.TEXT),
+                    Property(name="marca", data_type=DataType.TEXT, index_inverted=True),
+                    Property(name="potencia", data_type=DataType.TEXT, index_inverted=True),
+                    Property(name="tension", data_type=DataType.TEXT, index_inverted=True),
+                    Property(name="corriente", data_type=DataType.TEXT, index_inverted=True),
+                    
+                    # Servicio
+                    Property(name="tipoServicio", data_type=DataType.TEXT, index_inverted=True),
+                    Property(name="descripcionServicio", data_type=DataType.TEXT),
+                    Property(name="procedimientosServicio", data_type=DataType.TEXT_ARRAY),  # Para búsqueda híbrida (ej: por paso)
 
-    def create_index(self):
-        """Crea un nuevo índice FAISS"""
-        d = 768  # Dimensión del embedding
-        self.index = faiss.IndexFlatL2(d)
-        print("Índice FAISS creado exitosamente")
+                    # Pruebas
+                    # Property(name="resultadoPruebasElectricas", data_type=DataType.TEXT),
+                    # Property(name="resultadoPruebasMecanicas", data_type=DataType.TEXT),
+                    # Property(name="temperaturaOperacion", data_type=DataType.TEXT),
+                    # Property(name="datosSensores", data_type=DataType.TEXT),
 
-    def load_index(self):
-        """Carga el índice desde disco"""
-        self.index = faiss.read_index(self.INDEX_FILE)
-        with open(self.DOCS_FILE, "rb") as f:
-            self.docs = pickle.load(f)
-        self._build_technical_vocabulary()
-        print(f"Índice cargado con {len(self.docs)} documentos")
+                    # Recomendaciones
+                    Property(name="recomendacionesGenerales", data_type=DataType.TEXT_ARRAY),
+                    Property(name="recomendacionesEspecificas", data_type=DataType.TEXT_ARRAY),
 
-    def _build_technical_vocabulary(self):
-        """Extrae términos técnicos desde el JSON para mejorar la detección de preguntas técnicas."""
-        if not self.docs:
-            return
+                    # Otros metadatos
+                    Property(name="cliente", data_type=DataType.TEXT, index_inverted=True),
+                    Property(name="tipoFalla", data_type=DataType.TEXT, index_inverted=True),
+                    Property(name="estadoReparacion", data_type=DataType.TEXT, index_inverted=True),
+                    Property(name="fechaInicio", data_type=DataType.DATE, index_inverted=True),
+                    Property(name="fechaFin", data_type=DataType.DATE, index_inverted=True),
+                    Property(name="normativas", data_type=DataType.TEXT_ARRAY),
+                    # Property(name="repuestos", data_type=DataType.TEXT_ARRAY),
 
-        words = []
-        for doc in self.docs:
-            content = re.sub(r'^[^:]+:', '', doc).lower()
-            words.extend(re.findall(r'\b[a-záéíóúüñ]{4,}\b', content))
-
-        # Extraer términos desde el JSON procesado
-        json_terms = set()
-        with open(self.json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            def extract_keys(obj, prefix=""):
-                if isinstance(obj, dict):
-                    for key, value in obj.items():
-                        json_terms.add(key.lower())
-                        extract_keys(value, f"{prefix}{key}_")
-                elif isinstance(obj, list):
-                    for item in obj:
-                        extract_keys(item, prefix)
-            extract_keys(data)
-
-        # Agregar términos extraídos al vocabulario técnico
-        word_counts = Counter(words)
-        stopwords = {"verificar", "sistema", "datos", "valor"}
-        self.technical_terms = {
-            word for word, count in word_counts.items()
-            if count >= 2 and word not in stopwords
-        }
-        self.technical_terms.update(json_terms)  # Añadir términos del JSON
-
-        print(f"📌 Términos técnicos extraídos: {len(self.technical_terms)}")
+                    # Campo para recuperación semántica integral
+                    Property(name="textoCompleto", data_type=DataType.TEXT)
 
 
+                    # Property(name="archivo", data_type=DataType.TEXT),
+                    # Property(
+                    #     name="datosTecnicos",
+                    #     data_type=DataType.OBJECT,
+                    #     nested_properties=[
+                    #         Property(name="potencia", data_type=DataType.TEXT),
+                    #         Property(name="voltaje", data_type=DataType.TEXT),
+                    #         Property(name="corriente", data_type=DataType.TEXT)
+                    #     ]
+                    # ),
+                    # Property(
+                    #     name="servicio",
+                    #     data_type=DataType.OBJECT,
+                    #     nested_properties=[
+                    #         Property(name="tipo", data_type=DataType.TEXT),
+                    #         Property(name="descripcion", data_type=DataType.TEXT)
+                    #     ]
+                    # ),
+                    # Property(
+                    #     name="pruebas",
+                    #     data_type=DataType.OBJECT,
+                    #     nested_properties=[
+                    #         Property(name="nombre", data_type=DataType.TEXT),
+                    #         Property(name="resultado", data_type=DataType.TEXT)
+                    #     ]
+                    # ),
+                    # Property(
+                    #     name="repuestos",
+                    #     data_type=DataType.OBJECT_ARRAY,
+                    #     nested_properties=[
+                    #         Property(name="nombre", data_type=DataType.TEXT),
+                    #         Property(name="cantidad", data_type=DataType.NUMBER)
+                    #     ]
+                    # ),
+                    # Property(
+                    #     name="fechasClave",
+                    #     data_type=DataType.OBJECT,
+                    #     nested_properties=[
+                    #         Property(name="inicio", data_type=DataType.DATE),
+                    #         Property(name="fin", data_type=DataType.DATE)
+                    #     ]
+                    # ),
+                    # Property(
+                    #     name="recomendaciones",
+                    #     data_type=DataType.OBJECT,
+                    #     nested_properties=[
+                    #         Property(name="generales", data_type=DataType.TEXT_ARRAY),
+                    #         Property(name="especificas", data_type=DataType.TEXT_ARRAY)
+                    #     ]
+                    # ),
+                    # Property(name="normativas", data_type=DataType.TEXT_ARRAY, index_inverted=True),
+                    # Property(name="cliente", data_type=DataType.TEXT, index_inverted=True),
+                    # Property(name="tipoFalla", data_type=DataType.TEXT, index_inverted=True),
+                    # Property(name="estadoReparacion", data_type=DataType.TEXT, index_inverted=True),
+                    # Property(name="textoCompleto", data_type=DataType.TEXT)
+                ],
+                vectorizer_config=[
+                    Configure.NamedVectors.text2vec_weaviate(
+                        name="textoCompleto_vector",
+                        source_properties=[
+                            "archivo"
+                            "marca"
+                            "potencia"
+                            "tension"
+                            "corriente"
+                            "tipoServicio"
+                            "descripcionServicio"
+                            "procedimientosServicio"
+                            "recomendacionesGenerales"
+                            "recomendacionesEspecificas"
+                            "cliente"
+                            "tipoFalla"
+                            "estadoReparacion"
+                            "fechaInicio"
+                            "fechaFin"
+                            "normativas"
+                            "textoCompleto"
+                        ],
+                        model="Snowflake/snowflake-arctic-embed-l-v2.0"
+                    )
+                ]
+            )
 
-    def load_json_data(self):
-        """Carga y procesa los datos del JSON especificado en el constructor"""
-        try:
-            with open(self.json_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            
-            fragmentos = self.procesar_json(data)
-            self.add_documents(fragmentos)
-            print(f"✅ Documentos indexados: {len(self.docs)}")
-            return True
-            
-        except Exception as e:
-            print(f"❌ Error al cargar JSON: {str(e)}")
-            return False
+            print("✅ Esquema creado en Weaviate")
+    except Exception as e:
+        client.close()
+        print(f"❌ Error: {e}")
 
-    def procesar_json(self, data):
-        """Procesa el JSON para extraer fragmentos técnicos"""
-        fragmentos = []
+
+
+def estandarizar_fecha(fecha_str: str) -> Optional[str]:
+    """Convierte diferentes formatos de fecha a ISO 8601"""
+    if not fecha_str:
+        return None
+    
+    try:
+        # Formato "12 de Diciembre de 2023"
+        if "de" in fecha_str:
+            meses = {
+                'Enero': '01', 'Febrero': '02', 'Marzo': '03', 'Abril': '04',
+                'Mayo': '05', 'Junio': '06', 'Julio': '07', 'Agosto': '08',
+                'Septiembre': '09', 'Octubre': '10', 'Noviembre': '11', 'Diciembre': '12'
+            }
+            partes = [p.strip() for p in fecha_str.split("de")]
+            if len(partes) == 3:
+                dia, mes, anio = partes
+                mes_num = meses.get(mes.capitalize(), '01')
+                return f"{anio}-{mes_num}-{dia.zfill(2)}"
         
-        def extract_values(obj, path=""):
-            if isinstance(obj, dict):
-                for k, v in obj.items():
-                    new_path = f"{path}.{k}" if path else k
-                    extract_values(v, new_path)
-            elif isinstance(obj, list):
-                for item in obj:
-                    extract_values(item, path)
-            elif isinstance(obj, (int, float, str)):
-                if isinstance(obj, (int, float)) or (str(obj).strip() and len(str(obj).strip()) > 1):
-                    fragmentos.append(f"{path}: {obj}")  # Asegurar que todo se indexe
+        # Formato "04/12/23"
+        elif "/" in fecha_str and len(fecha_str.split("/")[2]) == 2:
+            dia, mes, anio = fecha_str.split("/")
+            return f"20{anio}-{mes.zfill(2)}-{dia.zfill(2)}"
+        
+        # Formato ISO básico
+        return datetime.strptime(fecha_str, "%Y-%m-%d").date().isoformat()
+    except:
+        return None
 
-        extract_values(data)
-        return fragmentos
+def extraer_datos_tecnicos(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Extrae y estandariza los datos técnicos del motor"""
+    datos_placa = doc.get("datos_placa", {})
+    electricas = datos_placa.get("caracteristicas_electricas", {})
+    mecanicas = datos_placa.get("caracteristicas_mecanicas", {})
+    info_general = doc.get("informacion_general", {})
+    lv_potencia = lv_equipo = lv_id_equipo = lv_modelo = ""
+    lv_id_maquina = ""
+
+    """Extrae la potencia"""
+    if isinstance(datos_placa.get("potencia"), dict):
+        lv_potencia = f"{datos_placa['potencia'].get('valor', '')} {datos_placa['potencia'].get('unidad', '')}".strip()
+    elif isinstance(datos_placa.get("potencia"), str):
+        lv_potencia = f"{datos_placa.get('potencia', '')}".strip() 
+    
+    """Extrae el equipo"""
+    if isinstance(info_general.get("equipo"), dict):
+        lv_equipo = info_general.get('equipo', {}).get('tipo', '').strip()
+        lv_id_equipo = info_general.get("equipo", {}).get("identificacion", "")
+    elif isinstance(info_general.get("equipo"), str):
+        lv_equipo = info_general.get('equipo', '').strip()
+    elif isinstance(info_general.get("tipo_equipo"), str):
+        lv_equipo = info_general.get('tipo_equipo', '').strip()
+    
+    """Extrae Id de la placa"""
+    if isinstance(datos_placa.get("identificacion"), dict):
+        lv_modelo = datos_placa.get("identificacion", {}).get("serie", "No especificado").strip()
+        lv_id_maquina = datos_placa.get("identificacion", {}).get("maquina_asociada", "").strip()
+    elif isinstance(datos_placa.get("identificacion"), str):
+        lv_modelo = datos_placa.get("identificacion", '').strip() 
+    elif isinstance(datos_placa.get("maquina_asociada"), str):
+        lv_id_maquina = datos_placa.get("maquina_asociada", '').strip()
+
+        
+    
+    return {
+        "marca": datos_placa.get("marca", "No informado"),
+        "modelo": lv_modelo, #datos_placa.get("identificacion", {}).get("serie", "No especificado"),
+        "potencia": lv_potencia,
+        "tension": electricas.get("tension", datos_placa.get("tension", "")),
+        "corriente": electricas.get("corriente", datos_placa.get("corriente", "")),
+        "frecuencia": electricas.get("frecuencia", datos_placa.get("frecuencia", "")),
+        "fases": electricas.get("fases", datos_placa.get("fases", "")),
+        "rpm": mecanicas.get("rpm", datos_placa.get("rpm", "")),
+        "frame": mecanicas.get("frame", datos_placa.get("frame", "")),
+        "proteccion": mecanicas.get("proteccion", datos_placa.get("grado_proteccion", "")),
+        "claseAislamiento": electricas.get("clase_aislamiento", datos_placa.get("clase_aislamiento", "")),
+        # "tempMaxima": electricas.get("temperatura_maxima", ""),
+        "maquinaAsociada": lv_id_maquina, #datos_placa.get("identificacion", {}).get("maquina_asociada", ""),
+        "tipoEquipo": lv_equipo, #info_general.get("equipo", {}).get("tipo", ""),
+        "identificacionEquipo": lv_id_equipo
+    }
+
+def transformar_servicio(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Transforma la información del servicio realizado"""
+    servicio = doc.get("servicio", {})
+    diagnostico = servicio.get("diagnostico_falla", {})
+    
+    
+    return {
+        "tipo": servicio.get("tipo", ""),
+        "descripcion": servicio.get("descripcion", ""),
+        "procedimientos": servicio.get("procedimientos", servicio.get("trabajos_realizados", [])), #servicio.get("procedimientos" || "trabajos_realizados", []),
+        "diagnostico": {
+            "tipoFalla": diagnostico.get("tipo", servicio.get("tipo_falla", '')),
+            "descripcionFalla": diagnostico.get("descripcion", ""),
+            "causaRaiz": doc.get("analisis_falla", {}).get("causa_raiz", "")  # Extrae de análisis_falla si existe
+        }
+    }
+
+def transformar_pruebas(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Transforma los resultados de las pruebas"""
+    pruebas = doc.get("pruebas", {})
+    electricas = pruebas.get("electricas", {})
+    mecanicas = pruebas.get("mecanicas", {})
+    
+    # Procesar prueba de vacío
+    prueba_vacio = electricas.get("vacio", {})
+    parametros_vacio = prueba_vacio.get("parametros", [])
+    tensiones = [f"{p['tension']}V" for p in parametros_vacio if isinstance(p, dict)]
+    corrientes = [f"{p['corriente']}A" for p in parametros_vacio if isinstance(p, dict)]
+    
+    return {
+        "electricas": {
+            "aislamientoTierra": f"{electricas.get('aislamiento_tierra', {}).get('resistencia', '')} (Mínimo: {electricas.get('aislamiento_tierra', {}).get('estandar', {}).get('alambre_redondo', '')})",
+            "altaTension": f"{electricas.get('alta_tension', {}).get('resultado', '')} ({electricas.get('alta_tension', {}).get('tension_prueba', '')})",
+            "impulso": "OK" if all(r == "OK" for r in electricas.get('impulso', {}).get('resultados', {}).values()) else "Fallo",
+            "pruebaVacio": f"Tensión: {', '.join(tensiones)}, Corriente: {', '.join(corrientes)}"
+        },
+        "mecanicas": {
+            "vibracion": "Ajustes dentro de rango" if all(
+                p.get("ajuste_final", "") != "-" 
+                for p in mecanicas.get("vibracion", {}).get("parametros", [])
+            ) else "Ajustes requeridos",
+            "temperatura": {
+                "rodamientoLC": mecanicas.get("temperatura", {}).get("lecturas", {}).get("rodamiento_LC", ""),
+                "carcasa": mecanicas.get("temperatura", {}).get("lecturas", {}).get("carcasa", ""),
+                "cumpleLimites": True  # Asumimos que cumple si no hay observaciones
+            }
+        },
+        "equiposUtilizados": list(set([
+            electricas.get("aislamiento_tierra", {}).get("equipo", ""),
+            electricas.get("alta_tension", {}).get("equipo", ""),
+            mecanicas.get("vibracion", {}).get("equipo", ""),
+            mecanicas.get("temperatura", {}).get("equipo", "")
+        ]))
+    }
+def transformar_repuestos(doc: Dict[str, Any]) -> Dict[str, Any]:
+    repuestos_raw = doc.get("repuestos", [])
+    repuestos_normalizados = []
+    
+    if isinstance(repuestos_raw, dict):  # Caso de diccionario con "descripcion"
+        repuestos_raw = [repuestos_raw.get("descripcion", "")]  # Convertir a lista
+    
+    if isinstance(repuestos_raw, list):
+        for r in repuestos_raw:
+            if isinstance(r, str):  # Caso de lista de cadenas
+                repuestos_normalizados.append({
+                    "tipo": "",
+                    "referencia": r,
+                    "marca": "",
+                    "cantidad": 1,
+                    "codigoStandard": r.replace(" ", "-")
+                })
+            elif isinstance(r, dict):  # Caso de lista de diccionarios
+                repuestos_normalizados.append({
+                    "tipo": r.get("tipo", ""),
+                    "referencia": r.get("referencia", ""),
+                    "marca": r.get("marca", ""),
+                    "cantidad": r.get("cantidad", 1),
+                    "codigoStandard": f"{r.get('marca', '')}-{r.get('referencia', '').replace(' ', '-')}"
+                })
+    
+    return repuestos_normalizados
+
+def transformar_clientes(doc: Dict[str, Any]) -> Dict[str, Any]:
+    cliente = ""
+    
+    if isinstance(doc.get("informacion_general", {}).get("cliente"), dict):
+        cliente = doc["informacion_general"]["cliente"].get("nombre", "")
+    elif isinstance(doc.get("informacion_general", {}).get("cliente"), str):
+        cliente = doc["informacion_general"]["cliente"]
+    elif "empresa_cliente" in doc.get("informacion_general", {}):
+        cliente = doc["informacion_general"].get("empresa_cliente", "")
+    elif "informacion_cliente" in doc:
+        cliente = doc["informacion_cliente"].get("empresa", "")
+    
+    return cliente
+
+def transformar_fallas(doc: Dict[str, Any]) -> Dict[str, Any]:
+    servicio = doc.get("servicio")
+    fallas = ""
+    
+    if isinstance(servicio.get("diagnostico_falla"), dict):
+        fallas = servicio.get("diagnostico_falla", {}).get("tipo", "")
+    elif isinstance(servicio.get("tipo_falla"), str):
+        fallas = servicio.get("tipo_falla", '')
+    
+    return fallas
+
+def transformar_estado_reparacion(doc):
+    estado = "Verificado"  # Valor por defecto
+    
+    if isinstance(doc.get("verificacion_placa"), dict):
+        estado = doc["verificacion_placa"].get("resultado", "Verificado")
+    elif isinstance(doc.get("verificacion_placa"), str):
+        estado = doc["verificacion_placa"]
+    
+    return estado
+
+def transformar_recomendaciones(doc):
+    """
+    Extrae las recomendaciones en el formato requerido por Weaviate.
+    Retorna un diccionario con 'especificas' y 'generales'.
+    """
+    recomendaciones = doc.get("recomendaciones", {})
+    
+    # Manejo flexible para específicas (acepta string o lista)
+    especificas = recomendaciones.get("especificas", [])
+    if isinstance(especificas, str):
+        especificas = [especificas]  # Convertir string a lista de un elemento
+    elif not isinstance(especificas, list):
+        especificas = []  # Por si acaso viene otro tipo de dato
+    
+    # Generales deben ser una lista con todas las recomendaciones generales
+    generales = []
+    generales_data = recomendaciones.get("generales", doc.get('recomendaciones_generales', {})) 
+    
+    for categoria, valor in generales_data.items():
+        if isinstance(valor, list):
+            generales.extend(valor)
+        elif isinstance(valor, str):
+            generales.append(valor)
+    
+    return {
+        "especificas": especificas,
+        "generales": generales
+    }
+
+
+def generar_texto_completo(doc: Dict[str, Any], doc_transformado: Dict[str, Any]) -> str:
+    """Genera el texto optimizado para Snowflake Arctic Embed"""
+    datos = doc_transformado.get("datosTecnicos", {})
+    servicio = doc_transformado.get("servicio", {})
+    recomendaciones = doc_transformado.get("recomendaciones", {})
+    fechas = doc_transformado.get("fechasClave", {})
+    diagnostico = servicio.get("diagnostico", {})
+    normativas = doc_transformado.get("normativas", [])
+    recomendaciones_texto = (
+        f"especificas - {'; '.join(recomendaciones.get('especificas', []))}; "
+        f"generales - {'; '.join(recomendaciones.get('generales', ''))}"
+    )
+
+    # generales = []
+    # generales_raw = recomendaciones.get("generales", {})
+    # for v in generales_raw.values():
+    #     if isinstance(v, list):
+    #         generales.extend(v)
+    #     elif isinstance(v, str):
+    #         generales.append(v)
+
+    # recomendaciones_texto = (
+    #     f"especificas - {recomendaciones.get('especificas', '').strip()}; "
+    #     f"generales - {'; '.join(generales)}"
+    # )
+    
+    partes_texto = [
+        f"Motor marca: {datos.get('marca', '')}, potencia: {datos.get('potencia', '')}, tension: {datos.get('tension', '')}, corriente: {datos.get('corriente', '')}",
+        f"Servicio: {servicio.get('tipo', '')} - {servicio.get('descripcion', '')}",
+        f"Procedimientos: {'; '.join(servicio.get('procedimientos', []))}",
+        f"Recomendaciones: {recomendaciones_texto}",
+        f"Falla: {diagnostico.get('tipoFalla', '')} - {diagnostico.get('descripcionFalla', '')}",
+        f"Estado reparación: {doc_transformado.get('estadoReparacion', '')}",
+        f"Fechas: inicio - {fechas.get('ingreso', '')}, fin - {fechas.get('entrega', '')}",
+        f"Normativas: {'; '.join(normativas)}",
+        f"Cliente: {doc_transformado.get('cliente', '')}"
+    
 
 
 
-    def add_documents(self, texts):
-        """Añade documentos al índice"""
-        if not texts:
-            return
-            
-        embeddings = self.model.encode(texts, convert_to_numpy=True)
-        self.index.add(embeddings.astype('float32'))
-        self.docs.extend(texts)
-        self._build_technical_vocabulary()
-        self.save_index()
 
-    def save_index(self):
-        """Guarda el índice en disco"""
-        faiss.write_index(self.index, self.INDEX_FILE)
-        with open(self.DOCS_FILE, "wb") as f:
-            pickle.dump(self.docs, f)
+        # f"Motor {datos['tipoEquipo']} {datos['marca']} {datos['potencia']}",
+        # f"Operación: {datos['rpm']} RPM, {datos['tension']}, {datos['fases']} fases",
+        # f"Ubicación: {datos['maquinaAsociada']}",
+        # f"Falla: {servicio['diagnostico']['tipoFalla']} - {servicio['diagnostico']['descripcionFalla']}",
+        # # f"Causa raíz: {servicio['diagnostico']['causaRaiz']}" if servicio['diagnostico']['causaRaiz'] else "",
+        # f"Servicio: {servicio['tipo']}",
+        # f"Procedimientos: {'; '.join(servicio['procedimientos'][:3])}",
+        # f"Pruebas: Aislamiento {pruebas['electricas']['aislamientoTierra'].split(' ')[0]}; ",
+        # f"Alta tensión: {pruebas['electricas']['altaTension'].split(' ')[0]}",
+        # f"Repuestos: {len(doc_transformado['repuestos'])} ítems ({', '.join([r['referencia'] for r in doc_transformado['repuestos'][:2]])})",
+        # f"Resultado: {doc_transformado.get('estadoReparacion', 'Verificado')}",
+        # f"Recomendaciones: {recomendaciones_texto}"
+        # # f"Documentación: {'Fotos disponibles' if doc_transformado.get('documentacionAdjunta', {}).get('fotosAntes', False) else 'Sin fotos'}"
+    ]
+    
+    return ". ".join([p for p in partes_texto if p]) + "."
 
-    def is_technical_question(self, question):
-        """Determina si la pregunta es técnica en función de los términos extraídos del JSON."""
-        question = question.lower()
-        question_terms = set(re.findall(r'\b[a-záéíóúüñ]{4,}\b', question))
+def transformar_documento(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Transforma un documento JSON a la estructura estandarizada"""
 
-        # Verificar si la pregunta contiene términos técnicos extraídos
-        if question_terms & self.technical_terms:
-            return True
+    doc_transformado = {
+        "archivo": doc.get("archivo", ""),
+        "datosTecnicos": extraer_datos_tecnicos(doc),
+        "servicio": transformar_servicio(doc),
+        "pruebas": transformar_pruebas(doc),
+        "repuestos": transformar_repuestos(doc),
+        # "repuestos": [
+        #     {
+        #         "tipo": r.get("tipo", ""),
+        #         "referencia": r.get("referencia", ""),
+        #         "marca": r.get("marca", ""),
+        #         "cantidad": r.get("cantidad", 0),
+        #         "codigoStandard": f"{r.get('marca', '')}-{r.get('referencia', '').replace(' ', '-')}"
+        #     } for r in doc.get("repuestos", [])
+        # ],
+        "fechasClave": {
+            "ingreso": estandarizar_fecha(doc.get("informacion_general", {}).get("fecha_ingreso", "")),
+            "informe": estandarizar_fecha(doc.get("informacion_general", {}).get("fecha_informe", "")),
+            "entrega": estandarizar_fecha(doc.get("informacion_general", {}).get("fecha_entrega", "")),
+            "firma": estandarizar_fecha(doc.get("firmas", {}).get("fecha_firma", ""))
+        },
+        "recomendaciones": transformar_recomendaciones(doc),
+        "normativas": [
+            f"{n.get('codigo', '')}:{n.get('version', '')}" 
+            for n in doc.get("normativas", [])
+        ],
+        "cliente": transformar_clientes(doc), #doc.get("informacion_general", {}).get("cliente", {}).get("nombre", "")
+        "tipoFalla": transformar_fallas(doc), #doc.get("servicio", {}).get("diagnostico_falla", {}).get("tipo", ""),
+        "estadoReparacion": transformar_estado_reparacion(doc) #doc.get("verificacion_placa", {}).get("resultado", "Verificado")
+        # "documentacionAdjunta": {
+        #     "fotosAntes": doc.get("observaciones", {}).get("fotos", {}).get("antes", "") == "Disponible",
+        #     "fotosDespues": doc.get("observaciones", {}).get("fotos", {}).get("despues", "") == "Disponible",
+        #     "diagramas": False
+        # }
+    }
+    
+    doc_transformado["textoCompleto"] = generar_texto_completo(doc, doc_transformado)
+    return doc_transformado
 
-        # Extraer patrones de preguntas técnicas desde las claves del JSON
-        common_patterns = {key.replace("_", " ") for key in self.technical_terms if len(key) > 3}
 
-        if any(pattern in question for pattern in common_patterns):
-            return True
+def convertir_fecha(fecha_str):
+    try:
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
+        return fecha.strftime("%Y-%m-%dT%H:%M:%SZ")
+    except Exception as e:
+        print(f"Error al convertir fecha: {fecha_str} -> {e}")
+        return None
 
+
+def cargar_a_weaviate(doc: Dict[str, Any]) -> bool:
+    """Carga un documento transformado a Weaviate"""
+    try:
+        data_object = {
+            "archivo": doc["archivo"],
+            "marca": doc["datosTecnicos"]["marca"],
+            "potencia": doc["datosTecnicos"]["potencia"],
+            "tension": doc["datosTecnicos"]["tension"],
+            "corriente":doc["datosTecnicos"]["corriente"],
+            "tipoServicio":doc["servicio"]["tipo"],
+            "descripcionServicio":doc["servicio"]["descripcion"],
+            "procedimientosServicio": doc["servicio"]["procedimientos"],
+            "recomendacionesGenerales": doc["recomendaciones"]["generales"],
+            "recomendacionesEspecificas": doc["recomendaciones"]["especificas"],
+            "cliente": doc["cliente"],
+            "tipoFalla":doc["tipoFalla"],
+            "estadoReparacion":doc["estadoReparacion"],
+            "fechaInicio": convertir_fecha(doc["fechasClave"]["ingreso"]),
+            "fechaFin": convertir_fecha(doc["fechasClave"]["entrega"]),
+            "normativas":doc["normativas"],
+            "textoCompleto": doc["textoCompleto"]
+
+            # "archivo": doc["archivo"],
+            # "datosTecnicos": doc["datosTecnicos"],
+            # "servicio": doc["servicio"],
+            # "pruebas": doc["pruebas"],
+            # "repuestos": doc["repuestos"],
+            # "fechasClave": doc["fechasClave"],
+            # "normativas": doc["normativas"],
+            # "recomendaciones": doc["recomendaciones"],
+            # "cliente": doc["cliente"],
+            # "tipoFalla": doc["tipoFalla"],
+            # "estadoReparacion": doc["estadoReparacion"],
+            # "textoCompleto": doc["textoCompleto"]
+            # # "documentacionAdjunta": doc.get("documentacionAdjunta", {})
+        }
+        
+        client.collections.get(CLASS_NAME).data.insert(data_object)
+
+        return True
+    except Exception as e:
+        print(f"Error al cargar documento: {str(e)}")
         return False
 
-    def preprocess_query(self, query):
-        """Normaliza y expande la consulta para mejorar la búsqueda."""
-        query = query.lower().strip()
+def procesar_objeto_json(objeto: Dict[str, Any], filename: str, index: int) -> Optional[Dict[str, Any]]:
+    """Transforma un objeto JSON individual a la estructura estandarizada"""
+    try:
+        # Asegurarnos que el objeto tenga un campo 'archivo' único
+        if 'archivo' not in objeto:
+            base_name = os.path.splitext(filename)[0]
+            objeto['archivo'] = f"{base_name}_{index+1}.pdf"
+        
+        return transformar_documento(objeto)
+    except Exception as e:
+        print(f"❌ Error procesando objeto {index+1} en {filename}: {str(e)}")
+        return None
 
-        # Expansión de sinónimos
-        synonyms = {
-            "potencia": ["kw", "kilovatios", "capacidad"],
-            "corriente": ["amperaje", "amperios"],
-            "tensión": ["voltaje", "v"],
-            "resistencia": ["ohmios", "Ω"],
-            "velocidad": ["rpm"]
-        }
-
-        expanded_query = []
-        for word in query.split():
-            expanded_query.append(word)
-            if word in synonyms:
-                expanded_query.extend(synonyms[word])
-
-        # Corrección de errores ortográficos simples
-        typo_corrections = {
-            "potenzia": "potencia",
-            "voltage": "tensión",
-            "amperage": "corriente"
-        }
-        expanded_query = [typo_corrections.get(word, word) for word in expanded_query]
-
-        return " ".join(expanded_query)
-
-    # def preprocess_query(self, query):
-    #     """Normaliza y expande la consulta para mejorar la búsqueda."""
-    #     query = query.lower().strip()
-
-    #     # Expansión de sinónimos
-    #     synonyms = {
-    #         "potencia": ["kw", "kilovatios"],
-    #         "corriente": ["amperaje", "amperios"],
-    #         "tensión": ["voltaje", "v"],
-    #         "resistencia": ["ohmios", "Ω"],
-    #         "velocidad": ["rpm"]
-    #     }
-
-    #     expanded_query = []
-    #     for word in query.split():
-    #         expanded_query.append(word)
-    #         if word in synonyms:
-    #             expanded_query.extend(synonyms[word])
-
-    #     return " ".join(expanded_query)
-
-    def search(self, question, top_k=5):
-        """
-        Busca en los embeddings solo si es pregunta técnica.
-        Devuelve lista vacía para preguntas generales o consultas sin relación con los datos.
-        """
-        if not self.is_technical_question(question):
-            return []
-
-        question = self.preprocess_query(question)
-
-        # 🚨 Filtro semántico antes de buscar
-        if not any(term in question for term in self.technical_terms):
-            return []
-
-        query_embedding = self.model.encode([question])
-        distances, indices = self.index.search(query_embedding.astype('float32'), top_k)
-
-        results = [(self.docs[idx], distances[0][i]) for i, idx in enumerate(indices[0]) if idx < len(self.docs)]
-
-        # Aplicar filtro de relevancia con la consulta como parámetro
-        results = self._apply_relevance_boost(results, question)
-
-        # 🚨 Excluir `palabras_clave` y `serie` en preguntas generales
-        if not self.is_technical_question(question):
-            results = [
-                doc for doc in results
-                if "palabras_clave" not in doc.lower() and "serie" not in doc.lower() and "n.i" not in doc.lower()
-            ]
-
-        return results
-
-
-
-
-    # def search(self, question, top_k=5):
-    #     """
-    #     Busca en los embeddings solo si es pregunta técnica.
-    #     Devuelve lista vacía para preguntas generales o consultas sin relación con los datos.
-    #     """
-    #     if not self.is_technical_question(question):
-    #         return []
-
-    #     question = self.preprocess_query(question)
-
-    #     # 🚨 Filtro semántico antes de buscar
-    #     if not any(term in question for term in self.technical_terms):
-    #         return []
-
-    #     query_embedding = self.model.encode([question])
-    #     distances, indices = self.index.search(query_embedding.astype('float32'), top_k)
-
-    #     results = [(self.docs[idx], distances[0][i]) for i, idx in enumerate(indices[0]) if idx < len(self.docs)]
-
-    #     # Aplicar filtro de relevancia con la consulta como parámetro
-    #     results = self._apply_relevance_boost(results, question)
-
-    #     # 🚨 Excluir `palabras_clave` en preguntas generales
-    #     if not self.is_technical_question(question):
-    #         results = [doc for doc in results if "palabras_clave" not in doc.lower()]
-
-    #     return results
-
-    def _get_document_weight(self, doc_tuple):
-        """
-        Asigna un peso a cada documento basado en su contenido o metadatos.
-        Puede ajustarse según reglas específicas de negocio.
-        """
-        doc = doc_tuple[0]  # Extrae el documento de la tupla
-
-        # Caso base: peso por defecto
-        weight = 1.0
-
-        # Si el documento tiene ciertas palabras clave, aumentar el peso
-        keywords = ["alta tension", "prueba eléctrica", "revisión", "mantenimiento"]
-        if any(keyword in doc.lower() for keyword in keywords):
-            weight = 0.8  # Mayor prioridad a pruebas eléctricas y mantenimiento
-
-        # Si el documento es una recomendación, reducir su peso (ejemplo)
-        if "recomendaciones_generales" in doc.lower():
-            weight = 1.2  # Se considera menos prioritario que los datos técnicos
-
-        return weight
-
-
-    # def _apply_relevance_boost(self, results, query):
-    #     """Prioriza valores técnicos clave y evita división por cero en palabras clave irrelevantes."""
-    #     boosted_results = []
-
-    #     FIELD_WEIGHTS = {
-    #         'potencia_kw': 10.0,  # Aumentar prioridad de la potencia
-    #         'tensión': 3.0, 'corriente': 3.0,
-    #         'resistencia': 3.0, 'prueba': 2.0, 'falla': 1.8,
-    #         'ajuste': 1.8, 'velocidad': 1.5, 'rpm': 1.5,
-    #         'palabras_clave': 0.1,  # Casi sin peso para evitar coincidencias débiles
-    #         'serie': 0.1, 'trabajos_realizados': 0.3
-    #     }
-    def _apply_relevance_boost(self, results, query):
-        """Prioriza valores técnicos clave y evita responder preguntas generales."""
-        boosted_results = []
-
-        FIELD_WEIGHTS = {
-            'potencia_kw': 10.0,  # Aumentar prioridad de la potencia
-            'tensión': 3.0, 'corriente': 3.0,
-            'resistencia': 3.0, 'prueba': 2.0, 'falla': 1.8,
-            'ajuste': 1.8, 'velocidad': 1.5, 'rpm': 1.5,
-            'trabajos_realizados': 0.3
-        }
-
-        # Lista de términos técnicos válidos en el índice
-        TECHNICAL_TERMS = [
-            "potencia", "kw", "tensión", "corriente", "resistencia",
-            "prueba", "falla", "ajuste", "velocidad", "rpm",
-            "aislamiento", "motor", "ventilador", "tierra", "impulso"
-        ]
-
-        # 🚨 Si la consulta no contiene términos técnicos, detener la búsqueda
-        if not any(term in query.lower() for term in TECHNICAL_TERMS):
-            return []
-
-        for doc, score in results:
-            weight = 1.0  
-
-            # Aplicar pesos según campos técnicos encontrados
-            for field, field_weight in FIELD_WEIGHTS.items():
-                if field in doc.lower():
-                    weight *= field_weight
-                    break
-
-            boosted_results.append((doc, score / weight))
-
-        boosted_results.sort(key=lambda x: x[1])
-
-        # 🚨 Filtro especial para la pregunta de potencia
-        if "potencia" in query and "kw" in query:
-            filtered_results = [doc for doc, _ in boosted_results if "potencia_kw" in doc.lower()]
-            if filtered_results:
-                return filtered_results  
-
-        # Filtrar respuestas débiles (evitar palabras clave sin contexto)
-        filtered_results = [doc for doc, _ in boosted_results if "palabras_clave" not in doc.lower()]
-
-        return filtered_results if filtered_results else []
-
-
-
-
-        # boosted_results = []
-
-        # FIELD_WEIGHTS = {
-        #     'potencia_kw': 5.0, 'tensión': 4.0, 'corriente': 3.5,
-        #     'resistencia': 4.0, 'prueba': 2.5, 'falla': 2.0,
-        #     'ajuste': 1.8, 'velocidad': 1.6, 'rpm': 1.6,
-        #     'palabras_clave': 0.1,  # 🚨 Se evita que sea 0 para prevenir división por cero
-        #     'serie': 0.1  # 🚨 Se evita que "serie" tenga peso relevante
-        # }
-
-        # for doc, score in results:
-        #     weight = 1.0  
-
-        #     # Aplicar pesos según campos técnicos encontrados
-        #     for field, field_weight in FIELD_WEIGHTS.items():
-        #         if field in doc.lower():
-        #             weight *= field_weight
-        #             break
-
-        #     # 🚨 Evitar división por cero asegurando que el peso mínimo sea 0.1
-        #     boosted_results.append((doc, score / max(weight, 0.1)))
-
-        # boosted_results.sort(key=lambda x: x[1])
-
-        # return [doc for doc, _ in boosted_results]
+def procesar_archivo_json(filepath: str) -> tuple[int, int]:
+    """Procesa un archivo JSON que puede contener un objeto o un array de objetos"""
+    filename = os.path.basename(filepath)
+    exitos = 0
+    errores = 0
     
-        # """
-        # Ajusta la relevancia de los resultados en función de pesos adicionales.
-        # Evita divisiones por cero y garantiza que los resultados se ordenen correctamente.
-        # """
-        # boosted_results = []
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
-        # for doc_tuple in results:
-        #     weight = self._get_document_weight(doc_tuple)  # Se pasa la tupla completa
-            
-        #     # 🚨 Evita división por cero asegurando un peso mínimo
-        #     weight = max(weight, 1e-6)
-            
-        #     # Aplica la ponderación ajustada
-        #     adjusted_score = doc_tuple[1] / weight
-        #     boosted_results.append((doc_tuple[0], adjusted_score))
+        # Determinar si es un array o un objeto individual
+        if isinstance(data, list):
+            print(f"📂 Procesando archivo {filename} con {len(data)} objetos...")
+            objetos = data
+            es_array = True
+        else:
+            print(f"📄 Procesando archivo {filename} con 1 objeto...")
+            objetos = [data]
+            es_array = False
         
-        # # Ordenar por puntuación ajustada (mayor relevancia primero)
-        # return sorted(boosted_results, key=lambda x: x[1], reverse=True)
+        transformados = []
+        
+        for i, obj in enumerate(objetos):
+            transformado = procesar_objeto_json(obj, filename, i)
+            if transformado:
+                # exitos += 1
+                # transformados.append(transformado)
+                if cargar_a_weaviate(transformado):
+                    transformados.append(transformado)
+                    exitos += 1
+                else:
+                    errores += 1
+            else:
+                errores += 1
+        
+        # Guardar archivo transformado
+        if transformados:
+            try:
+                output_filename = f"transformado_{filename}"
+                output_path = os.path.join(OUTPUT_FOLDER, output_filename)
 
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    if es_array:
+                        json.dump(transformados, f, ensure_ascii=False, indent=2)
+                    else:
+                        json.dump(transformados[0] if transformados else {}, f, ensure_ascii=False, indent=2)
 
+                print(f"✅ Archivo guardado correctamente en {output_path}")
 
+            except Exception as e:
+                print(f"❌ Error al guardar el archivo: {e}")
+
+        return exitos, errores
     
-        # boosted_results = []
+    except json.JSONDecodeError:
+        print(f"❌ Error: Archivo {filename} no es un JSON válido")
+        return 0, 1
+    except Exception as e:
+        print(f"❌ Error procesando archivo {filename}: {str(e)}")
+        return 0, 1
 
-        # FIELD_WEIGHTS = {
-        #     'potencia_kw': 10.0,  # Aumentar prioridad de la potencia
-        #     'tensión': 3.0, 'corriente': 3.0,
-        #     'resistencia': 3.0, 'prueba': 2.0, 'falla': 1.8,
-        #     'ajuste': 1.8, 'velocidad': 1.5, 'rpm': 1.5,
-        #     'palabras_clave': 0.1  # Casi sin peso para evitar coincidencias débiles
-        # }
+def procesar_todos_los_archivos():
+    """Procesa todos los archivos JSON en la carpeta de entrada"""
+    # if not os.path.exists(INPUT_FOLDER):
+    #     os.makedirs(INPUT_FOLDER)
+    #     print(f"📁 Se creó la carpeta de entrada: {INPUT_FOLDER}")
+    
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.makedirs(OUTPUT_FOLDER)
+        print(f"📁 Se creó la carpeta de salida: {OUTPUT_FOLDER}")
+    
+    crear_esquema_weaviate()
+    total_exitos = 0
+    total_errores = 0
+    
+    print(f"\n🔍 Buscando archivos JSON en {INPUT_FOLDER}...")
+    
+    for filename in sorted(os.listdir(INPUT_FOLDER)):
+        if filename.endswith(".json"):
+            filepath = os.path.join(INPUT_FOLDER, filename)
+            
+            exitos, errores = procesar_archivo_json(filepath)
+            total_exitos += exitos
+            total_errores += errores
+            
+            print(f"   ✅ Objetos exitosos: {exitos}")
+            print(f"   ❌ Errores: {errores}")
+            print("   ──────────────────────────")
+    
+    print(f"\n🏁 Proceso completado:")
+    print(f"- Total de documentos procesados exitosamente: {total_exitos}")
+    print(f"- Total de errores: {total_errores}")
+    print(f"- Archivos transformados guardados en: {os.path.abspath(OUTPUT_FOLDER)}")
+    print(f"- Documentos cargados en Weaviate en la clase 'InformesMotores'")
+    print(f"- Cerrando conexion a Weaviate'")
+    client.close()
 
-        # for doc, score in results:
-        #     weight = 1.0  
+def rewrite_query(user_question: str) -> str:
+    inputs = tokenizer(user_question, return_tensors="pt")
+    with torch.no_grad():
+        outputs = model.generate(**inputs)
+    # outputs = model.generate(**inputs)
+    print(outputs)
+    reformulated = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-        #     # Aplicar pesos según campos técnicos encontrados
-        #     for field, field_weight in FIELD_WEIGHTS.items():
-        #         if field in doc.lower():
-        #             weight *= field_weight
-        #             break
+    return reformulated
+    # prompt = f"Generate a search query: {user_question}"
+    # result = generator(prompt, max_length=64, do_sample=False)
+    # return result[0]["generated_text"]
 
-        #     boosted_results.append((doc, score / weight))
+# # Define las propiedades esperadas, su tipo y sinónimos
+# def construir_query_usuario(texto_usuario: str) -> dict:
+#     texto_limpio = re.sub(r"[^\w\s\-]", "", texto_usuario.lower())
+#     palabras = texto_limpio.split()
+#     filtros = []
 
-        # boosted_results.sort(key=lambda x: x[1])
+#     for prop, config in PROPIEDADES.items():
+#         for clave in config["claves"]:
+#             if clave in palabras:
+#                 # Extraer el valor según el tipo de dato
+#                 if config["tipo"] == "unidad":
+#                     valor = extraer_valor_con_unidad(palabras, clave, prop)
+#                 else:
+#                     valor = extraer_valor_despues_de_clave(palabras, clave)
 
-        # # 🚨 Filtro especial para la pregunta de potencia
-        # if "potencia" in query and "kw" in query:
-        #     filtered_results = [doc for doc, _ in boosted_results if "potencia_kw" in doc.lower()]
-        #     if filtered_results:
-        #         return filtered_results  
+#                 if not valor:
+#                     continue
 
-        # # Filtrar respuestas débiles (evitar palabras clave sin contexto)
-        # filtered_results = [doc for doc, _ in boosted_results if "palabras_clave" not in doc.lower()]
-        # return filtered_results if filtered_results else [doc for doc, _ in boosted_results]
-
-    # def display_results(self, question, results):
-    #     """Muestra los resultados de búsqueda con más contexto."""
-    #     if not results:
-    #         print(f"\n🔍 No se encontraron resultados técnicos para: '{question}'")
-    #         print("ℹ️ Esta parece ser una pregunta general o no relacionada con los datos técnicos")
-    #         return
-
-    #     print(f"\n🔍 Resultados técnicos para: '{question}'\n")
-    #     for i, result in enumerate(results, 1):
-    #         doc = result[0]  # Extrae el documento de la tupla
-
-    #         if ":" in doc:
-    #             field, value = doc.split(":", 1)  # Divide solo en la primera aparición de ":"
-    #             print(f"{i}. {field.strip()} → {value.strip()}")
-    #         else:
-    #             print(f"{i}. {doc}")  # Si no hay ":", imprime el documento completo
+#                 # Agregar el filtro según el tipo
+#                 if config["tipo"] in ["texto", "unidad"]:
+#                     filtros.append(Filter.by_property(prop.strip()).equal(valor))
+#                 elif config["tipo"] == "fecha":
+#                     try:
+#                         fecha_obj = datetime.strptime(valor, "%Y-%m-%d").date()
+#                         filtros.append(Filter.by_property(prop.strip()).equal(fecha_obj))
+#                     except ValueError:
+#                         pass  # Ignorar si no es una fecha válida
 
 
-    def display_results(self, question, results):
-        """Muestra los resultados de búsqueda"""
-        if not results:
-            print(f"\n🔍 No se encontraron resultados técnicos para: '{question}'")
-            print("ℹ️ Esta parece ser una pregunta general o no relacionada con los datos técnicos")
-            return
-        
-        print(f"\n🔍 Resultados técnicos para: '{question}'\n")
-        for i, doc in enumerate(results, 1):
-            print(f"{i}. {doc}")
+#     filtro_final = None
+#     if filtros:
+#         filtro_final = filtros[0]
+#         for f in filtros[1:]:
+#             filtro_final = filtro_final & f
+
+#     return {
+#         "query": texto_usuario,
+#         "filters": filtro_final
+#     }
+
+# def extraer_valor_despues_de_clave(palabras: list[str], clave: str) -> str | None:
+#     if clave in palabras:
+#         idx = palabras.index(clave)
+#         for i in range(idx + 1, len(palabras)):
+#             palabra = palabras[i].strip().lower()
+#             if palabra in STOPWORDS:
+#                 continue
+#             if palabra in VALORES_INVALIDOS:
+#                 return None
+#             if re.match(r"^[a-zA-Z0-9\-]+$", palabra):
+#                 return palabra.upper()
+#             else:
+#                 break
+#     return None
+
+
+# def extraer_valor_con_unidad(palabras: list[str], clave: str, tipo_prop: str) -> str | None:
+#     if clave in palabras:
+#         idx = palabras.index(clave)
+#         for i in range(idx + 1, len(palabras) - 1):
+#             palabra_actual = palabras[i]
+#             palabra_siguiente = palabras[i + 1]
+#             if palabra_actual.isdigit():
+#                 unidad = palabra_siguiente
+#                 if unidad in UNIDADES.get(tipo_prop, set()):
+#                     return f"{palabra_actual} {unidad.upper()}"
+#     return None
+
+
+
 
 
 if __name__ == "__main__":
-    # Opción 1 (con JSON por defecto "data.json"):
-    store = EmbeddingStore()  
-    # store.load_json_data()
+    # print("🚀 Iniciando procesamiento de múltiples archivos JSON")
+    # print(f"🔗 Conexión a Weaviate: {WEAVIATE_URL}")
+    # print(f"🤖 Modelo de embeddings: snowflake-arctic-embed-l-v2.0\n")
+    
+    # procesar_todos_los_archivos()
+    # client.close()
 
 
-    # preguntas_tecnicas = [
-    # "¿Cuál es la potencia en kw del motor?",
-    # "¿Cuáles fueron los trabajos realizados en la reparación?",
-    # "¿Qué pruebas eléctricas se realizaron?",
-    # "¿Cuál fue la resistencia de aislamiento a tierra en GΩ?",
-    # "¿Cuál es la velocidad en RPM del motor en vacío?",
-    # "¿Qué recomendaciones generales se dieron para el mantenimiento del motor?",
-    # "¿Qué pruebas de alta tensión se realizaron?",
-    # "¿Cuál es la tensión de prueba en la prueba de impulso?",
-    # "¿Qué tipo de ajuste se hizo en el ventilador?",
-    # "¿Qué fallas se encontraron en el equipo?"
-    # ]
+    # def preparar_query_para_weaviate(pregunta: str) -> str:
+    #     # Busca potencia como número
+    #     match = re.search(r'(\d+\.?\d*)\s*HP', pregunta, re.IGNORECASE)
+    #     if match:
+    #         potencia = match.group(1)
+    #         return f"motor con potencia {potencia} HP"
+    #     return pregunta  # fallback si no encuentra patrón
+    # def preparar_query_para_weaviate(pregunta: str) -> str:
+    #     if "cliente" in pregunta.lower() and "servicio" in pregunta.lower():
+    #         match = re.search(r'cliente\s+(.+?)[\?\.]?', pregunta, re.IGNORECASE)
+    #         if match:
+    #             cliente = match.group(1).strip()
+    #             return f"servicios realizados al cliente {cliente}"
+    #     return pregunta  # fallback
 
-    # preguntas_generales = [
-    #     "¿Qué hora es en París?",
-    #     "¿Quién ganó el último mundial de fútbol?",
-    #     "¿Cómo está el clima hoy?",
-    #     "¿Cuál es la capital de Francia?",
-    #     "¿Quién es el presidente de Estados Unidos?",
-    #     "¿Cómo hacer una pizza casera?",
-    #     "¿Cuánto es 2+2?",
-    #     "¿Qué significa la palabra 'resiliencia'?",
-    #     "¿Dónde queda el Monte Everest?",
-    #     "¿Cuál es la mejor serie de Netflix?",
-    #     "como esta el clima en Cali, Colombia?"
-    # ]
+    
 
-    # # Probar preguntas técnicas
-    # print("\n🔍 **Pruebas con preguntas técnicas**")
-    # for pregunta in preguntas_tecnicas:
-    #     resultados = store.search(pregunta)
-    #     store.display_results(pregunta, resultados)
+    try:
+        collection = client.collections.get(CLASS_NAME)
 
-    # # Probar preguntas generales
-    # print("\n🔍 **Pruebas con preguntas generales**")
-    # for pregunta in preguntas_generales:
-    #     resultados = store.search(pregunta)
-    #     store.display_results(pregunta, resultados)
+        
+
+        query_para_weaviate = "¿Que archivos tiene motor de marca WEG?"
+        # query_para_weaviate = f"archivos con fecha inicio 2024-03-27"
+        # query_para_weaviate = f"¿Qué tipo de falla se presentó en el motor de la marca WEG?"
+        print(f"esta es la pregunta: {query_para_weaviate}")
+       
+
+        
+        # query_llm = "¿Que tipo de servicios le hice al cliente ALIMENTOS CARNICOS S A S?"
+        # query_para_weaviate = preparar_query_para_weaviate(query_para_weaviate)
+        # query_para_weaviate = "servicios realizados al cliente ALIMENTOS CARNICOS S A S"
+        better_query = rewrite_query(query_para_weaviate)
+
+
+
+        print(f"Esta es la pregunta reformulada: {better_query}")
+
+
+        print("🚀 Iniciando Query")
+        # query_info = construir_query_usuario(query_para_weaviate)
+        # print("📦 Query enviada a Weaviate:", query_info["query"])
+        # print("🧪 Filtros aplicados:", vars(query_info["filters"]))
+
+        # results = collection.query.hybrid(
+        #     query=query_para_weaviate,  # Texto del usuario
+        #     limit=5,
+        #     alpha=0.75,
+        #     fusion_type=HybridFusion.RELATIVE_SCORE,  # ✅ Correcto
+        #     # filters=query_info["filters"],  # ✅ Debe ser un objeto tipo Filter
+        #     target_vector="textoCompleto_vector",  # ✅ Nombre del vector
+        #     return_metadata=MetadataQuery(score=True, explain_score=True),  # ✅ Para debugging
+        #     return_properties=[
+        #         "marca", "tipoFalla", "recomendacionesEspecificas",
+        #         "tipoServicio", "procedimientosServicio", "potencia"
+        #     ]  # ✅ Atributos que quieres retornar
+        # )
+
+
+        # # results = collection.query.hybrid(
+        # #     query=query_info["query"],  # Texto del usuario
+        # #     limit=5,
+        # #     alpha=0.1,
+        # #     fusion_type=HybridFusion.RELATIVE_SCORE,  # ✅ Correcto
+        # #     filters=query_info["filters"],  # ✅ Debe ser un objeto tipo Filter
+        # #     target_vector="textoCompleto_vector",  # ✅ Nombre del vector
+        # #     return_metadata=MetadataQuery(score=True, explain_score=True),  # ✅ Para debugging
+        # #     return_properties=[
+        # #         "marca", "tipoFalla", "recomendacionesEspecificas",
+        # #         "tipoServicio", "procedimientosServicio", "potencia"
+        # #     ]  # ✅ Atributos que quieres retornar
+        # # )
+
+        # # results = collection.query.hybrid(
+        # #     query=query_para_weaviate,  # tu texto de búsqueda
+        # #     limit=5,
+        # #     alpha=0.80,
+        # #     # query_properties=["fechaInicio"], 
+        # #     target_vector="textoCompleto_vector",
+        # #     filters=Filter.by_property("fechaInicio").equal(convertir_fecha('2024-03-27')),
+        # #     return_metadata=MetadataQuery(score=True, explain_score=True)
+        # #     # target_vector="textoCompleto_vector",
+        # #     # filters=Filter.by_property("potencia").equal("20 HP")
+        # # )
+
+        # # results = collection.query.near_text(
+        # #     query=query_para_weaviate,
+        # #     limit=2,
+        # #     target_vector="textoCompleto_vector",
+        # #     return_metadata=MetadataQuery(distance=True)
+        # # )
+
+        # print(f"🔗 Imprimiendo resultados - semantic search con near_text o hybrid")
+        # print(len(results.objects))
+        # for obj in results.objects:
+        #     # if  obj.metadata.score >= 0.90:
+        #     props = obj.properties
+        #     texto = f"""
+        #         **🔧 Score:** {obj.metadata.score}
+        #         **🔧 Marca:** {props.get("marca")}
+        #         **🔧 Potencia:** {props.get("potencia")}
+        #         **⚡ Tipo de Falla:** {props.get("tipoFalla")}
+        #         **🧰 Servicio:** {props.get("tipoServicio")}
+        #         **📋 Procedimientos:** {', '.join(props.get("procedimientosServicio", [])) if props.get("procedimientosServicio") else 'N/A'}
+        #         **✅ Recomendaciones:** {', '.join(props.get("recomendacionesEspecificas", [])) if props.get("recomendacionesEspecificas") else 'N/A'}
+        #         """
+        #     print(texto)
+                
+                # print(f"Texto: {obj.properties['textoCompleto']}")
+
+        # embed_model = SentenceTransformer("snowflake/snowflake-arctic-embed-l-v2.0")  # o el modelo que uses
+
+        # query_embedding = embed_model.encode("¿Cuál es la marca del motor con potencia 20 HP?", convert_to_tensor=True)
+
+        # # Supón que results.objects[i].properties['textoCompleto'] contiene el texto
+        # docs = [
+        #     {
+        #         "text": obj.properties["textoCompleto"],
+        #         "embedding": obj.vector,  # si usas `.with_vector()` en el query
+        #         "score": util.cos_sim(query_embedding, obj.vector).item()
+        #     }
+        #     for obj in results.objects
+        # ]
+
+        # # Ordena por score y selecciona el mejor
+        # docs = sorted(docs, key=lambda d: d["score"], reverse=True)
+        # mejor_contexto = docs[0]["text"]
+            
+
+
+        # print("🚀 Iniciando Query II")
+        # results = collection.query.fetch_objects(
+        #     filters=Filter.by_property("cliente").equal("AMCOR FLEXIBLES CALI SAS"),
+        #     limit=10
+        # )
+        # print(f"🔗 Imprimiendo resultados - propiedades (where)")
+        # for obj in results.objects:
+        #     print(obj.properties["archivo"], obj.properties["cliente"])
+
+        # print("🚀 Iniciando Query III")
+        # results = collection.query.hybrid(
+        #     query="Hola como estas?",
+        #     limit=5,
+        #     filters=Filter.by_property("cliente").equal("FAMILIA DEL PACIFICO SAS")
+        # )
+        # print(f"🔗 Imprimiendo resultados - Combinar búsqueda semántica y filtros ")
+        # print(results)
+
+
+        print(f"🤖 Cerrando la conexion")
+        client.close()
+    except Exception as e:
+        print(str(e))
+        print(f"🤖 Cerrando la conexion")
+        client.close()
