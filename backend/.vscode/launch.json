@@ -22,5 +22,22 @@
 }
 
 
+// {
+//   "version": "0.2.0",
+//   "configurations": [
+//       {
+//           "name": "Python Debugger: Current File",
+//           "type": "debugpy",
+//           "request": "launch",
+//           "program": "${file}",
+//           "env": {
+//             "PYTHONPATH": "C:\\Users\\dddia\\Documents\\UAO\\EspecializacionIA\\ProyectosIA\\final\\Fusion_modelo_Phi2_Docker\\backend"
+//           },
+//           "console": "integratedTerminal"
+//       }
+//   ]
+// }
+
+
 
 

@@ -20,5 +20,5 @@ COPY . /app
 EXPOSE 8000
 
 # Comando para iniciar Chainlit
-CMD ["uv", "run", "chainlit", "run", "main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "streamlit", "run", "main.py", "--host", "0.0.0.0", "--port", "8000"]
 

@@ -7,11 +7,13 @@
 import sys
 import os
 from pathlib import Path
+import re
+import shutil
 
 # Añade la ruta del directorio `app` al PYTHONPATH
 # sys.path.append(str(Path(__file__).parent))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from langchain_ollama import ChatOllama
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -20,6 +22,8 @@ from pydantic import BaseModel
 import json
 ##### Custom
 from app.model_loader import get_ollama_client
+from app.system_prompt import system_prompt_get
+from app.extractor_texto import extraer_texto_desde_pdf, extraer_especificaciones
 
 # sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -56,13 +60,8 @@ class InputData(BaseModel):
 # Configuración de LangChain
 # SYSTEM_PROMPT = "Eres un experto en motores eléctricos con 25 años de experiencia. Responde de manera técnica y detallada."
 # SYSTEM_PROMPT = "Eres un experto en información sobre Colombia. Todas las preguntas que se te hagan las vas a responder utilizando slangs y regionalismos de Colombia en todo agradable y amable"
-SYSTEM_PROMPT = (
-        "Eres un especialista en reparación de motores eléctricos con más de 25 años de experiencia en el sector industrial y automotriz. "
-        "Tu objetivo es resolver cualquier duda técnica que los usuarios tengan sobre motores eléctricos, motores de combustión, mantenimiento preventivo, fallas comunes, repuestos y procedimientos de diagnóstico. "
-        "Respondes siempre de forma técnica, precisa, detallada y profesional, pero también accesible para personas con poco conocimiento. "
-        "No debes mencionar tu experiencia salvo que el usuario pregunte. "
-        "Si no sabes algo con certeza, debes indicarlo con honestidad y no inventar respuestas."
-    )
+SYSTEM_PROMPT = system_prompt_get( )
+
 
 def create_chain(model: str, temperature: float):
     llm = ChatOllama(
@@ -70,7 +69,7 @@ def create_chain(model: str, temperature: float):
         temperature=temperature,
         num_predict=256,
         system=SYSTEM_PROMPT,
-        disable_streaming=True,
+        disable_streaming=False,
         metadata={}
         # stream=True
     )
@@ -134,27 +133,58 @@ def list_available_models():
         )
 
 @app.post("/predict")
-async def predict(request: InputData):
+# async def predict(request: InputData):
+async def predict(
+    file: UploadFile = File(...),
+    input_text: str = Form(...),
+    model: str = Form(...),
+    temperature: float = Form(...),
+    top_p: float = Form(...),
+    top_k: int = Form(...),
+    max_tokens: int = Form(...)
+):
     llm_chain, prompt_template = create_chain(
-        model=request.model,
-        temperature=request.temperature
+        model= model, #request.model,
+        temperature= temperature #request.temperature
     )
 
-    contexto = "Motor marca: REPUBLIC, potencia: 15.00 HP, tension: 230 - 460 V, corriente: 40 - 20 Amp."
+    # Guardar PDF temporalmente
+    ruta_temp = f"temp_pdfs/{file.filename}" # {file.filename}
+    os.makedirs("temp_pdfs", exist_ok=True)
+    with open(ruta_temp, "wb") as f_out:
+        shutil.copyfileobj(file.file, f_out) #(file.file, f_out)
+
+    # Extraer contexto desde el PDF
+    texto = extraer_texto_desde_pdf(ruta_temp)
+    contexto = extraer_especificaciones(texto, file.filename)#(texto, file.filename)
+
+    os.remove(ruta_temp)
+
+    # contexto = "Motor marca: REPUBLIC, potencia: 15.00 HP, tension: 230 - 460 V, corriente: 40 - 20 Amp."
     
      # 🔥 Formateamos el prompt ANTES de pasarlo al modelo
     message_prompt = await prompt_template.ainvoke({
-        "input": request.input_text,
+        "input": input_text, #request.input_text,
         "context": contexto
     })
 
 
     async def generate_stream():
         async for chunk in llm_chain.astream(message_prompt):
-            print(f"imprimiendo chunk: {chunk}")
-            yield f"{json.dumps({'content': chunk.content})}\n\n"
-            # yield f"{json.dumps({'content': chunk})}\n\n"
-            # yield f"data: {json.dumps({'content': chunk})}\n\n"
+            if chunk.content:
+            # Separa el <think> del resto
+                think_match = re.search(r"<think>(.*?)</think>", chunk.content, re.DOTALL)
+                pensamiento = think_match.group(1) if think_match else ""
+                respuesta = re.sub(r"<think>.*?</think>", "", chunk.content, flags=re.DOTALL)
+
+                # Puedes ahora yieldear ambos
+                yield f"{json.dumps({'think': pensamiento, 'content': respuesta})}\n\n"
+
+
+            # print(f"imprimiendo chunk: {chunk}")
+            # yield f"{json.dumps({'content': chunk.content})}\n\n"
+            # # yield f"{json.dumps({'content': chunk})}\n\n"
+            # # yield f"data: {json.dumps({'content': chunk})}\n\n"
     
     return StreamingResponse(
         generate_stream(),
@@ -163,10 +193,10 @@ async def predict(request: InputData):
     )
 
 
-if __name__ == "__main__":
-    #  ollama_client = OllamaClient(model_name='mistral:latest')
-    # list_available_models()
-    predict({"model":"llama3.2:latest", "temperature":"0.7" })
+# if __name__ == "__main__":
+#     #  ollama_client = OllamaClient(model_name='mistral:latest')
+#     # list_available_models()
+#     predict({"model":"llama3.2:latest", "temperature":"0.7" })
 
 
 
