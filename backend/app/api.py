@@ -69,8 +69,8 @@ def create_chain(model: str, temperature: float):
         temperature=temperature,
         num_predict=256,
         system=SYSTEM_PROMPT,
-        disable_streaming=False,
-        metadata={}
+        disable_streaming=False
+        # metadata={}
         # stream=True
     )
     
@@ -84,12 +84,13 @@ def create_chain(model: str, temperature: float):
          [Pregunta del usuario]
          {input}
 
-         [Instrucciones]
-            - Responde como un experto de 25 años en motores.
-            - Sé técnico, claro y detallado.
-            - No repitas la pregunta ni menciones que estás usando contexto.
-            - Si no sabes algo, dilo con honestidad.
          """)
+            # [Instrucciones]
+            # - Responde como un experto de 25 años en motores.
+            # - Sé técnico, claro y detallado.
+            # - No repitas la pregunta ni menciones que estás usando contexto.
+            # - Si no sabes algo, dilo con honestidad.
+
     ])
     return llm, prompt_template
     # return llm | prompt_template | StrOutputParser()
@@ -170,15 +171,27 @@ async def predict(
 
 
     async def generate_stream():
-        async for chunk in llm_chain.astream(message_prompt):
-            if chunk.content:
-            # Separa el <think> del resto
-                think_match = re.search(r"<think>(.*?)</think>", chunk.content, re.DOTALL)
-                pensamiento = think_match.group(1) if think_match else ""
-                respuesta = re.sub(r"<think>.*?</think>", "", chunk.content, flags=re.DOTALL)
+        #####Not streaming
+        response =  llm_chain.invoke(message_prompt)
+        think_match = re.search(r"<think>(.*?)</think>", response.content, re.DOTALL)
+        pensamiento = think_match.group(1) if think_match else ""
+        respuesta = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL)
+        metadata = response.response_metadata
 
-                # Puedes ahora yieldear ambos
-                yield f"{json.dumps({'think': pensamiento, 'content': respuesta})}\n\n"
+        # Puedes ahora yieldear ambos
+        yield f"{json.dumps({'think': pensamiento, 'content': respuesta, 'metadata':metadata})}\n\n"
+
+        ####Streaming
+        # async for chunk in llm_chain.astream(message_prompt):
+        #     if chunk.content:
+        #     # Separa el <think> del resto
+        #         think_match = re.search(r"<think>(.*?)</think>", chunk.content, re.DOTALL)
+        #         pensamiento = think_match.group(1) if think_match else ""
+        #         respuesta = re.sub(r"<think>.*?</think>", "", chunk.content, flags=re.DOTALL)
+        #         metadata = chunk.response_metadata
+
+        #         # Puedes ahora yieldear ambos
+                # yield f"{json.dumps({'think': pensamiento, 'content': respuesta, 'metadata':metadata})}\n\n"
 
 
             # print(f"imprimiendo chunk: {chunk}")

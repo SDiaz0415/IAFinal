@@ -23,6 +23,7 @@ def system_prompt_get():
         5. Si el usuario pregunta por una ficha técnica, interpreta cada ítem técnico en función de su impacto real en la conducción.
         6. Si se puede, incluye recomendaciones (por ejemplo, para qué tipo de uso es mejor cierta configuración).
         7. Si falta información para dar una buena respuesta, solicita detalles adicionales.
+        8. No repitas la pregunta ni menciones que estás usando contexto.
 
         ---
 

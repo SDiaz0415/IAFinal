@@ -142,7 +142,7 @@ if user_input:
         with st.chat_message("assistant", avatar=icon_assistant):
             with st.spinner("🧠 El modelo está pensando..."):
                 response_area = st.empty()
-
+                
                 print("Asistente inicializado")  # Debug 2
 
                 # Usamos un diccionario para almacenar el estado
@@ -197,6 +197,23 @@ if user_input:
                             if "content" in chunk and chunk["content"]:
                                 response_state["full_response"] += chunk["content"]
                                 response_area.markdown(response_state["full_response"] + "▌")
+
+                            if "metadata" in chunk:
+                                response_state["metadata"] = chunk["metadata"]
+                            
+                                with st.expander("📊 Metadatos de la respuesta"):
+                                    metadata = response_state["metadata"]
+                                    if metadata:
+                                        st.write({
+                                            "Modelo": metadata.get("model", ""),
+                                            "Tokens del prompt": metadata.get("prompt_eval_count", 0),
+                                            "Tokens generados": metadata.get("eval_count", 0),
+                                            "Duración total (s)": round(metadata.get("total_duration", 0) / 1e9, 3),
+                                            "Razón de finalización": metadata.get("done_reason", ""),
+                                            "Creado en": metadata.get("created_at", ""),
+                                        })
+                                    else:
+                                        st.info("No se recibieron metadatos del modelo.")
 
                             # if line:
                             #     chunk = json.loads(line)
