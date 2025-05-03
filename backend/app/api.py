@@ -63,13 +63,16 @@ class InputData(BaseModel):
 SYSTEM_PROMPT = system_prompt_get( )
 
 
-def create_chain(model: str, temperature: float):
+def create_chain(model: str, temperature: float, max_tokens: int, top_p: float, top_k: int ):
     llm = ChatOllama(
         model=model,
         temperature=temperature,
-        num_predict=256,
+        num_predict=max_tokens,
         system=SYSTEM_PROMPT,
-        disable_streaming=False
+        disable_streaming=False,
+        top_k=top_k,
+        top_p=top_p
+
         # metadata={}
         # stream=True
     )
@@ -146,7 +149,10 @@ async def predict(
 ):
     llm_chain, prompt_template = create_chain(
         model= model, #request.model,
-        temperature= temperature #request.temperature
+        temperature= temperature, #request.temperature
+        max_tokens = max_tokens,
+        top_p=top_p,
+        top_k=top_k
     )
 
     # Guardar PDF temporalmente
@@ -181,7 +187,7 @@ async def predict(
         # Puedes ahora yieldear ambos
         yield f"{json.dumps({'think': pensamiento, 'content': respuesta, 'metadata':metadata})}\n\n"
 
-        ####Streaming
+        ###Streaming
         # async for chunk in llm_chain.astream(message_prompt):
         #     if chunk.content:
         #     # Separa el <think> del resto
@@ -191,13 +197,8 @@ async def predict(
         #         metadata = chunk.response_metadata
 
         #         # Puedes ahora yieldear ambos
-                # yield f"{json.dumps({'think': pensamiento, 'content': respuesta, 'metadata':metadata})}\n\n"
+        #         yield f"{json.dumps({'think': pensamiento, 'content': respuesta, 'metadata':metadata})}\n\n"
 
-
-            # print(f"imprimiendo chunk: {chunk}")
-            # yield f"{json.dumps({'content': chunk.content})}\n\n"
-            # # yield f"{json.dumps({'content': chunk})}\n\n"
-            # # yield f"data: {json.dumps({'content': chunk})}\n\n"
     
     return StreamingResponse(
         generate_stream(),
