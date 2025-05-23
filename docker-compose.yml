@@ -11,8 +11,16 @@ services:
       - ollama_data:/root/.ollama  # Persistencia de modelos
     command: >
       sh -c "
-        ollama pull mistral:latest && 
-        ollama run mistral"
+        ollama run llama3.2 || true && 
+        ollama pull nomic-embed-text:latest || true && 
+        ollama serve
+      "
+    # Añadir un healthcheck para que otros servicios esperen a que Ollama esté realmente listo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   backend:
     build: ./backend
@@ -20,7 +28,9 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - ollama
+      # Mejor usar 'service_healthy' para asegurar que el servicio está listo, no solo corriendo
+      ollama:
+        condition: service_healthy
     environment:
       - OLLAMA_HOST=http://ollama:11434
     volumes:
@@ -32,11 +42,12 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     volumes:
       - ./frontend:/app
     environment:
-      - API_URL=http://backend:8080/predict  # Usar la URL del backend en Docker
+      - BACKEND_BASE_URL=http://backend:8080  # Usar la URL del backend en Docker
 
 volumes:
   ollama_data:

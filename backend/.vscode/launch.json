@@ -8,13 +8,14 @@
           //"program": "${file}",
           "module": "uvicorn",
           "args": [
-            "app.api:app",  // Ruta a tu instancia de FastAPI
+            "app.main:app",  // Ruta a tu instancia de FastAPI
             "--reload",
             "--port", "8080"
           ],
           //"jinja": true,
           "env": {
-            "PYTHONPATH": "C:\\Users\\dddia\\Documents\\UAO\\EspecializacionIA\\ProyectosIA\\final\\Fusion_modelo_Phi2_Docker\\backend"
+            "PYTHONPATH": "${workspaceFolder}",
+            // "PYTHONPATH": "C:\\Users\\dddia\\Documents\\UAO\\EspecializacionIA\\ProyectosIA\\final\\Fusion_modelo_Phi2_Docker\\backend"
           },
           "console": "integratedTerminal"
       }

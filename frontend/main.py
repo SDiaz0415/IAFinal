@@ -5,15 +5,23 @@ import os
 import httpx
 import json
 import time
+from uuid import uuid4
 
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8080/predict")
-API_MODELS = os.getenv("API_MODELS", "http://127.0.0.1:8080/models")
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://127.0.0.1:8080")
+API_URL = f"{BACKEND_BASE_URL}/predict"
+API_MODELS = f"{BACKEND_BASE_URL}/models"
+
+# API_URL = os.getenv("API_URL", "http://127.0.0.1:8080/predict")
+# API_MODELS = os.getenv("API_MODELS", "http://127.0.0.1:8080/models")
+
+
 
 
 # Carga íconos personalizados (locales)
 icon_user = ""
 icon_assistant = "public/favicon.png"
 icon_loading = ""
+show_think = False
 
 def render_typing_animation(text, area):
     words = text.split()
@@ -52,12 +60,22 @@ if "cached_models" not in st.session_state:
 if 'historial' not in st.session_state:
     st.session_state.historial = []
 
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid4())
+
 # Sidebar con controles
 with st.sidebar:
     st.write('## Model Selection')
     st.session_state.model_selection = st.selectbox(
         'Select a model',
         options=st.session_state.cached_models,
+        index=0
+    )
+
+    st.write('## DB Selection')
+    st.session_state.db_selection = st.selectbox(
+        'Select a Vector Data Base',
+        options=['Milvus', 'Pinecone', 'Weaviate'],
         index=0
     )
 
@@ -140,8 +158,15 @@ if user_input:
 
     try:
         with st.chat_message("assistant", avatar=icon_assistant):
-            with st.spinner("🧠 El modelo está pensando..."):
-                response_area = st.empty()
+            # with st.spinner("🧠 El modelo está pensando..."):
+                st.session_state.show_think = False
+                response_area_think = st.empty()  # Área para pensamientos
+                response_area_content = st.empty()  # Área para contenido principal
+
+                # Mostrar spinner solo si hay contenido de pensamiento
+                if st.session_state.show_think:
+                    with st.spinner("🧠 El modelo está pensando..."):
+                        pass
                 
                 print("Asistente inicializado")  # Debug 2
 
@@ -155,12 +180,15 @@ if user_input:
                 # Declaramos la variable dentro del contexto correcto
                 response_state = {
                     "full_response": "",
+                    "thinking":"",
                     "metadata": {}
                 }
 
                 async def fetch_and_stream():
                     print("Iniciando fetch_and_stream")  # Debug 3
-                    async with httpx.AsyncClient(timeout=300.0) as client:
+                    st.session_state.show_think = False  # Resetear estado
+
+                    async with httpx.AsyncClient(timeout=400.0) as client:
                         print(f"Enviando POST a: {API_URL}")  # Debug 4
                         response = await client.post(
                             API_URL,
@@ -171,49 +199,78 @@ if user_input:
                                 "temperature": str(st.session_state.temperature),
                                 "top_p": str(st.session_state.top_p),
                                 "top_k": str(st.session_state.top_k),
-                                "max_tokens": str(st.session_state.max_tokens)
+                                "max_tokens": str(st.session_state.max_tokens),
+                                "db": str(st.session_state.db_selection),
+                                "session_id": str(st.session_state.session_id),
                             }
                         )
                         print(f"Respuesta HTTP recibida. Status: {response.status_code}")  # Debug 5
 
                         async for line in response.aiter_lines():
-                            print(f"Línea recibida: {line}")  # Debug 6 (crítico)
-                            line = line.strip()
+                            # line = line.rstrip('\n') #line.strip()
                             if not line:
-                                continue  # Ignora líneas vacías
+                                continue
 
                             try:
                                 chunk = json.loads(line)
-                                print(f"Chunk procesado: {chunk}") # Debug 7
                             except json.JSONDecodeError as e:
                                 print(f"Error parseando línea: {line} - {e}")
                                 continue
+                            
+                            # Manejar contenido de pensamiento
+                            if "think" in chunk and chunk["think"]:
+                                response_state["thinking"] += chunk["think"]
+                                st.session_state.show_think = True
+                                response_area_think.markdown(response_state["thinking"] + "▌")
 
-
-                            # if "think" in chunk and chunk["think"]:
-                            #     full_think += chunk["think"]
-                            #     placeholder_think.markdown(f"🧠 Pensando...\n\n{full_think}▌")
-
+                            # Manejar contenido principal
                             if "content" in chunk and chunk["content"]:
                                 response_state["full_response"] += chunk["content"]
-                                response_area.markdown(response_state["full_response"] + "▌")
+                                response_area_content.markdown(response_state["full_response"] + "▌")
 
-                            if "metadata" in chunk:
+                            if "metadata" in chunk and chunk["metadata"]:
                                 response_state["metadata"] = chunk["metadata"]
+                                # Metadata will be displayed once after the full response is received
+
+                        #For not Stream
+                        # async for line in response.aiter_lines():
+                        #     print(f"Línea recibida: {line}")  # Debug 6 (crítico)
+                        #     line = line.strip()
+                        #     if not line:
+                        #         continue  # Ignora líneas vacías
+
+                        #     try:
+                        #         chunk = json.loads(line)
+                        #         print(f"Chunk procesado: {chunk}") # Debug 7
+                        #     except json.JSONDecodeError as e:
+                        #         print(f"Error parseando línea: {line} - {e}")
+                        #         continue
+
+
+                        #     # if "think" in chunk and chunk["think"]:
+                        #     #     full_think += chunk["think"]
+                        #     #     placeholder_think.markdown(f"🧠 Pensando...\n\n{full_think}▌")
+
+                        #     if "content" in chunk and chunk["content"]:
+                        #         response_state["full_response"] += chunk["content"]
+                        #         response_area.markdown(response_state["full_response"] + "▌")
+
+                        #     if "metadata" in chunk:
+                        #         response_state["metadata"] = chunk["metadata"]
                             
-                                with st.expander("📊 Metadatos de la respuesta"):
-                                    metadata = response_state["metadata"]
-                                    if metadata:
-                                        st.write({
-                                            "Modelo": metadata.get("model", ""),
-                                            "Tokens del prompt": metadata.get("prompt_eval_count", 0),
-                                            "Tokens generados": metadata.get("eval_count", 0),
-                                            "Duración total (s)": round(metadata.get("total_duration", 0) / 1e9, 3),
-                                            "Razón de finalización": metadata.get("done_reason", ""),
-                                            "Creado en": metadata.get("created_at", ""),
-                                        })
-                                    else:
-                                        st.info("No se recibieron metadatos del modelo.")
+                        #         with st.expander("📊 Metadatos de la respuesta"):
+                        #             metadata = response_state["metadata"]
+                        #             if metadata:
+                        #                 st.write({
+                        #                     "Modelo": metadata.get("model", ""),
+                        #                     "Tokens del prompt": metadata.get("prompt_eval_count", 0),
+                        #                     "Tokens generados": metadata.get("eval_count", 0),
+                        #                     "Duración total (s)": round(metadata.get("total_duration", 0) / 1e9, 3),
+                        #                     "Razón de finalización": metadata.get("done_reason", ""),
+                        #                     "Creado en": metadata.get("created_at", ""),
+                        #                 })
+                        #             else:
+                        #                 st.info("No se recibieron metadatos del modelo.")
 
                             # if line:
                             #     chunk = json.loads(line)
@@ -239,14 +296,45 @@ if user_input:
                 # asyncio.run(fetch_and_stream())
                 print(f"Respuesta final: {response_state['full_response']}")  # Debug 9
 
-                # Actualizar UI final
-                response_area.markdown(response_state["full_response"])
-                
-                #Add Historical for Assistant
+                # Ocultar área de think si no hubo contenido
+                if not st.session_state.show_think:
+                    response_area_think.empty()
+                else:
+                    response_area_think.markdown(response_state["thinking"].strip()) # Remove final cursor
+
+
+                # Final update and display metadata after the stream completes
+                response_area_content.markdown(response_state["full_response"].strip()) # Remove final cursor
+
+                # Update historical with the full response
                 st.session_state.historial[-1] = {
                     "role": "assistant",
-                    "content": response_state["full_response"]
+                    "content": response_state["full_response"].strip()
                 }
+
+                if response_state["metadata"]:
+                    with st.expander("📊 Metadatos de la respuesta"):
+                        metadata = response_state["metadata"]
+                        st.write({
+                            "Modelo": metadata.get("model", ""),
+                            "Tokens del prompt": metadata.get("prompt_eval_count", 0),
+                            "Tokens generados": metadata.get("eval_count", 0),
+                            "Duración total (s)": round(metadata.get("total_duration", 0) / 1e9, 3),
+                            "Razón de finalización": metadata.get("done_reason", ""),
+                            "Creado en": metadata.get("created_at", ""),
+                        })
+                else:
+                    st.info("No se recibieron metadatos del modelo.")
+
+                ###For Streaming
+                # # Actualizar UI final
+                # response_area.markdown(response_state["full_response"])
+                
+                # #Add Historical for Assistant
+                # st.session_state.historial[-1] = {
+                #     "role": "assistant",
+                #     "content": response_state["full_response"]
+                # }
 
                 # if response_state["metadata"]:
                 #     # ###Add Historical for Assistant
