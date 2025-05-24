@@ -3,14 +3,15 @@ from typing import List, Dict, Any, Optional
 from app.embeddings.service import VectorDBConnection 
 
 ####DB connection
-from langchain_milvus import Milvus
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams
 from langchain_ollama import OllamaEmbeddings
-from pymilvus import utility, MilvusClient, DataType
 # from pymilvus import MilvusClient
 # from pymilvus import DataType
 
 
-class MilvusConnection(VectorDBConnection):
+class QdrantConnection(VectorDBConnection):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(**config)
         self.api_key = config.get("api_key")
@@ -19,16 +20,29 @@ class MilvusConnection(VectorDBConnection):
         self.embeddings = OllamaEmbeddings(model=config.get("embeddings"))
 
     def connect(self):
-        try:
+        try:            
             ####Strat langchain client milvus
-            self._vector_store = Milvus(
-                embedding_function=self.embeddings,
+            client = QdrantClient(
+                url=self.end_point, 
+                api_key=self.api_key,
+            )
+
+            # Crear colección si no existe
+            # Calcular dimensión del embedding dinámicamente
+            embedding_dim = len(self.embeddings.embed_query("test"))
+
+            collection_name = self.collection_name
+            existing_collections = [c.name for c in client.get_collections().collections]
+            if collection_name not in existing_collections:
+                client.recreate_collection(
+                    collection_name=collection_name,
+                    vectors_config=VectorParams(size=embedding_dim, distance=Distance.COSINE)
+                )
+
+            self._vector_store = QdrantVectorStore(
+                client=client,
                 collection_name=self.collection_name,
-                connection_args={
-                    "uri": self.end_point,
-                    "token": self.api_key,
-                },
-                drop_old=False,  # Drop the old Milvus collection if it exists
+                embedding=self.embeddings,
             )
             self._is_connected = True
 
@@ -91,11 +105,7 @@ class MilvusConnection(VectorDBConnection):
             raise ConnectionError("No conectado a Pinecone. Llama a .connect() primero.")
         try:
             pass
-            # if index_name in pinecone.list_indexes():
-            #     pinecone.delete_index(index_name)
-            #     print(f"Índice '{index_name}' eliminado de Pinecone.")
-            # else:
-            #     print(f"El índice '{index_name}' no existe en Pinecone.")
+
         except Exception as e:
             print(f"Error al eliminar índice en Pinecone: {e}")
             raise
@@ -109,16 +119,7 @@ class MilvusConnection(VectorDBConnection):
             # You might need to query the index stats or use list_indexes to get some info.
             # This is a simplified example.
             pass
-            # if index_name in pinecone.list_indexes():
-            #     index_stats = pinecone.Index(index_name).describe_index_stats()
-            #     return {
-            #         "name": index_name,
-            #         "dimension": index_stats["dimension"],
-            #         "namespaces": index_stats["namespaces"]
-            #         # Add more relevant stats as needed
-            #     }
-            # else:
-            #     return {"error": f"El índice '{index_name}' no existe."}
+ 
         except Exception as e:
             print(f"Error al describir índice en Pinecone: {e}")
             raise

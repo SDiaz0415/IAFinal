@@ -3,14 +3,15 @@ from typing import List, Dict, Any, Optional
 from app.embeddings.service import VectorDBConnection 
 
 ####DB connection
-from langchain_milvus import Milvus
+import faiss
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
 from langchain_ollama import OllamaEmbeddings
-from pymilvus import utility, MilvusClient, DataType
 # from pymilvus import MilvusClient
 # from pymilvus import DataType
 
 
-class MilvusConnection(VectorDBConnection):
+class FAISSConnection(VectorDBConnection):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(**config)
         self.api_key = config.get("api_key")
@@ -19,24 +20,23 @@ class MilvusConnection(VectorDBConnection):
         self.embeddings = OllamaEmbeddings(model=config.get("embeddings"))
 
     def connect(self):
-        try:
-            ####Strat langchain client milvus
-            self._vector_store = Milvus(
+        try:            
+            ####Strat langchain client FAISS
+            embedding_dim = len(self.embeddings.embed_query("hello world"))
+            index = faiss.IndexFlatL2(embedding_dim)
+
+
+            self._vector_store = FAISS(
                 embedding_function=self.embeddings,
-                collection_name=self.collection_name,
-                connection_args={
-                    "uri": self.end_point,
-                    "token": self.api_key,
-                },
-                drop_old=False,  # Drop the old Milvus collection if it exists
+                index=index,
+                docstore=InMemoryDocstore(),
+                index_to_docstore_id={},
             )
             self._is_connected = True
 
-  
-
             print(f"Connected to DB: successfully")
         except Exception as e:
-            print(f"Error al conectar a Milvus: {e}")
+            print(f"Error al conectar a FAISS: {e}")
             self._is_connected = False
             raise
 
@@ -53,7 +53,6 @@ class MilvusConnection(VectorDBConnection):
             raise ConnectionError("No conectado a Milvus. Llama a .connect() primero.")
         try:
             pass
-
         except Exception as e:
             print(f"Error al insertar vectores en Pinecone: {e}")
             raise
@@ -63,7 +62,7 @@ class MilvusConnection(VectorDBConnection):
         if not self._is_connected:
             raise ConnectionError("No conectado a Pinecone. Llama a .connect() primero.")
         try:
-            
+            self._vector_store.save_local(self.end_point)
             retrieved_docs = self._vector_store.similarity_search(user_query, k=top_k)
             serialized = "\n\n".join(
                 f"[Página: {doc.metadata.get('page', 'N/A')}]\n{doc.page_content}"
@@ -81,7 +80,6 @@ class MilvusConnection(VectorDBConnection):
             raise ConnectionError("No conectado a Pinecone. Llama a .connect() primero.")
         try:
             pass
-
         except Exception as e:
             print(f"Error al crear índice en Pinecone: {e}")
             raise
@@ -91,11 +89,6 @@ class MilvusConnection(VectorDBConnection):
             raise ConnectionError("No conectado a Pinecone. Llama a .connect() primero.")
         try:
             pass
-            # if index_name in pinecone.list_indexes():
-            #     pinecone.delete_index(index_name)
-            #     print(f"Índice '{index_name}' eliminado de Pinecone.")
-            # else:
-            #     print(f"El índice '{index_name}' no existe en Pinecone.")
         except Exception as e:
             print(f"Error al eliminar índice en Pinecone: {e}")
             raise
@@ -109,16 +102,7 @@ class MilvusConnection(VectorDBConnection):
             # You might need to query the index stats or use list_indexes to get some info.
             # This is a simplified example.
             pass
-            # if index_name in pinecone.list_indexes():
-            #     index_stats = pinecone.Index(index_name).describe_index_stats()
-            #     return {
-            #         "name": index_name,
-            #         "dimension": index_stats["dimension"],
-            #         "namespaces": index_stats["namespaces"]
-            #         # Add more relevant stats as needed
-            #     }
-            # else:
-            #     return {"error": f"El índice '{index_name}' no existe."}
+
         except Exception as e:
             print(f"Error al describir índice en Pinecone: {e}")
             raise

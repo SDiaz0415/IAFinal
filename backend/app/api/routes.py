@@ -1,5 +1,4 @@
 import json
-import re
 import shutil
 import os
 import json
@@ -7,17 +6,16 @@ import convertapi
 
 from fastapi import APIRouter, HTTPException, File, UploadFile, Form
 from fastapi.responses import StreamingResponse
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from app.api.schemas import InputData
 from app.llm.manager import LLMManager
 from app.llm.clients import get_ollama_client
-# from app.data_processing.text_extractor import PDFMechanicalSpecExtractor
+#########DB Clases
 from app.data_processing.text_extractor_txt import TextExtractor
-from app.embeddings.milvus_db import MilvusConnection # TODO: Descomentar cuando implementes el servicio de embeddings
+from app.embeddings.milvus_db import MilvusConnection 
+from app.embeddings.chroma_db import ChromaConnection 
+from app.embeddings.FAISS_db import FAISSConnection   
+from app.embeddings.Qdrant_db import QdrantConnection 
 from app.core.config import settings
 from app.llm.rag import RAGUtilities
 from app.llm.historical import get_by_session_id
@@ -38,7 +36,45 @@ router = APIRouter()
 
 # LLMManager Instance
 llm_manager = LLMManager()
-# embedding_service = EmbeddingService() # TODO: Descomentar cuando implementes el servicio de embeddings
+
+#################Local Methods
+def get_db_connection(db_name: str):
+    # 1. Configuración de conexión (puedes cargarla desde settings)
+    db_instance = None
+    match db_name:
+        case 'Milvus': 
+            database_config["api_key"] = settings.MILVUS_API
+            database_config["end_point"] = settings.MILVUS_END_POINT
+            database_config["collection_name"] = 'motor_collection'
+            database_config["embeddings"] = 'nomic-embed-text:latest'
+            db_instance = MilvusConnection(database_config)
+
+        case 'FAISS': 
+            database_config["api_key"] = ''
+            database_config["end_point"] = './FAISS_langchain_db'
+            database_config["collection_name"] = ''
+            database_config["embeddings"] = 'nomic-embed-text:latest'
+            db_instance = FAISSConnection(database_config)
+        
+        case 'Qdrant': 
+            database_config["api_key"] = settings.QDRANT_API
+            database_config["end_point"] = settings.QDRANT_END_POINT
+            database_config["collection_name"] = 'motor_collection'
+            database_config["embeddings"] = 'nomic-embed-text:latest'
+            db_instance = QdrantConnection(database_config)
+
+        case 'Chroma': 
+            database_config["api_key"] = ''
+            database_config["end_point"] = './chroma_langchain_db'
+            database_config["collection_name"] = 'motor_collection'
+            database_config["embeddings"] = 'nomic-embed-text:latest'
+            db_instance = ChromaConnection(database_config)
+    
+    return db_instance
+
+
+
+################Routes Start
 
 @router.get("/models")
 async def list_available_models():
@@ -71,89 +107,23 @@ async def predict(
     """
     Genera una respuesta del chatbot, extrayendo contexto de un PDF subido.
     """
-    # # # 1. Guardar PDF temporalmente
-    # temp_pdf_path = os.path.join(settings.TEMP_PDFS_DIR, file.filename)
-    # try:
-    #     with open(temp_pdf_path, "wb") as f_out:
-    #         shutil.copyfileobj(file.file, f_out)
-    # except Exception as e:
-    #     raise HTTPException(
-    #         status_code=500,
-    #         detail=f"Error al guardar el PDF temporalmente: {str(e)}"
-    #     )
-
-    # ## 2.Create dir and Send PDF to OCR API to get txt file
-    # os.makedirs(settings.DATA_RAW_DOCS_DIR, exist_ok=True)
-    # convertapi.api_credentials = settings.CONVERT_API_SECRET
-    # convertapi.convert(FILE_TYPES[0], { 
-    #     'File': temp_pdf_path,
-    #     'OcrLanguage': 'es'
-    # }, from_format = FILE_TYPES[1]).save_files(settings.SAVE_RAW_DOCS_DIR)
-
-    # 1. Configuración de conexión (puedes cargarla desde settings)
-    match db:
-        case 'Milvus': 
-            database_config["api_key"] = settings.MILVUS_API
-            database_config["end_point"] = settings.MILVUS_END_POINT
-            database_config["collection_name"] = 'motor_collection'
-            database_config["embeddings"] = 'nomic-embed-text:latest'
-            db_connection = MilvusConnection(database_config)
-
-        case 'FAISS': 
-            database_config["api_key"] = settings.MILVUS_API
-            database_config["end_point"] = settings.MILVUS_END_POINT
-
-        case 'Pinecone': 
-            database_config["api_key"] = settings.MILVUS_API
-            database_config["end_point"] = settings.MILVUS_END_POINT
+    ####Validate if pdf file is uploaded to DB
+    ##Check if txt exist, if exists PDF on DB
+   
+    ######Get DB instance 
+    db_connection = get_db_connection(db_name=db)
     
-
+    ######Connect to DB
     db_connection.connect()
 
-    ###########RAG Creation
-    # # 3. Extract text as JSON from txt
-    # base_name = os.path.splitext(file.filename)[0]
-    # txt_path = os.path.join(settings.GET_RAW_DOCS_DIR, base_name + '.' + FILE_TYPES[0])
-    # print("Leyendo archivo en:", txt_path)
-    # extractor = TextExtractor(txt_path)
-    # results = extractor.get_results()
-    # print(json.dumps(results, ensure_ascii=False, indent=2))
-
-    # RAGBuilder = RAGUtilities(db_connection)
-    # RAGBuilder.populate_db(results)
-
     ###########RAG Query
-    contexto_final = db_connection.query_vectors(user_query=input_text, top_k=2)
+    contexto_final = db_connection.query_vectors(user_query=input_text, top_k=4)
     
+    ###########Disconnect DB
     db_connection.disconnect()
+   
 
-
-    # extractor = PDFMechanicalSpecExtractor(temp_pdf_path) 
-    # extracted_data = extractor.extract_mechanical_specifications()
-    # print(json.dumps(extracted_data, indent=4, ensure_ascii=False))
-    # try:
-    #     texto_completo = extract_text_from_pdf(temp_pdf_path) #extraer_texto_desde_pdf
-    #     contexto_extraido = extract_specifications(texto_completo) #extraer_especificaciones
-    # except Exception as e:
-    #     os.remove(temp_pdf_path) # Asegurarse de limpiar el archivo
-    #     raise HTTPException(
-    #         status_code=500,
-    #         detail=f"Error al extraer texto o especificaciones del PDF: {str(e)}"
-    #     )
-    # finally:
-    #     # 3. Eliminar PDF temporal
-    #     os.remove(temp_pdf_path)
-
-    # TODO: Aquí podrías integrar la lógica de RAG real con la base de datos vectorial
-    # if embedding_service.is_motor_question(input_text):
-    #     retrieved_context = embedding_service.search_relevant_documents(input_text)
-    #     contexto_final = contexto_extraido + "\n" + retrieved_context
-    # else:
-    #     contexto_final = contexto_extraido # O podrías no usar contexto si no es relevante
-
-    
-
-    # # 4. Crear la cadena LangChain y generar la respuesta
+    ######Create llm and prompt template
     llm_chain, prompt_template = llm_manager.create_rag_chain(
         model=model,
         temperature=temperature,
@@ -162,10 +132,10 @@ async def predict(
         top_k=top_k
     )
 
-    #####5. Start with historical chat
+    #####Create the chain
     chain = prompt_template | llm_chain
 
-    # --- Get Model and prompt template ---
+    ####### Create model with history
     chain_with_history = RunnableWithMessageHistory(
         chain,
         # Uses the get_by_session_id function defined in the example
@@ -175,10 +145,10 @@ async def predict(
         history_messages_key="history",
     )
 
+    ####### Define Stream Function
     async def generate_stream():
         global thinking_add
-        # TODO: Implementar streaming si `astream` está disponible y se desea
-        # Esto es un ejemplo de cómo funcionaría con un no-streaming como el actual
+        ### TODO: This is for not stream
         # response = llm_chain.invoke(message_prompt)
         # response = chain_with_history.invoke(
         #     {
@@ -198,7 +168,7 @@ async def predict(
 
         # yield f"{json.dumps({'think': pensamiento, 'content': respuesta_limpia, 'metadata': metadata, 'history':history_serialized})}\n\n"
 
-        ######Si quieres streaming (el código comentado de tu api.py original)
+        ######Steaming Way
         async for chunk in chain_with_history.astream(
             {
                 "input": input_text,
@@ -232,3 +202,50 @@ async def predict(
         generate_stream(),
         media_type="application/x-ndjson"
     )
+
+@router.post("/rag")
+def predict(
+    file: UploadFile = File(...),
+    data_base_name: str = Form(...)
+):
+    
+    ## 1. Guardar PDF temporalmente
+    os.makedirs(settings.TEMP_PDFS_DIR, exist_ok=True)
+    temp_pdf_path = os.path.join(settings.TEMP_PDFS_DIR, file.filename)
+    try:
+        with open(temp_pdf_path, "wb") as f_out:
+            shutil.copyfileobj(file.file, f_out)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al guardar el PDF temporalmente: {str(e)}"
+        )
+
+    ## 2.Create dir and Send PDF to OCR API to get txt file
+    os.makedirs(settings.SAVE_RAW_DOCS_DIR, exist_ok=True)
+    convertapi.api_credentials = settings.CONVERT_API_SECRET
+    convertapi.convert(FILE_TYPES[0], { 
+        'File': temp_pdf_path,
+        'OcrLanguage': 'es'
+    }, from_format = FILE_TYPES[1]).save_files(settings.SAVE_RAW_DOCS_DIR)
+
+    ###########RAG Creation
+    db_connection = get_db_connection(db_name=data_base_name)
+
+    ######Connect to DB
+    db_connection.connect()
+
+    #######Extract data from TXT
+    base_name = os.path.splitext(file.filename)[0]
+    txt_path = os.path.join(settings.GET_RAW_DOCS_DIR, base_name + '.' + FILE_TYPES[0])
+    print("Leyendo archivo en:", txt_path)
+    extractor = TextExtractor(txt_path)
+    results = extractor.get_results()
+    print(json.dumps(results, ensure_ascii=False, indent=2))
+
+    # ###########Populate DB
+    RAGBuilder = RAGUtilities(db_connection)
+    RAGBuilder.populate_db(results)
+
+    ###########Disconnect DB
+    db_connection.disconnect()

@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     CONVERT_API_SECRET: str
     MILVUS_END_POINT: str
     MILVUS_API: str
+    QDRANT_END_POINT: str
+    QDRANT_API: str
 
     # DEBUG: bool = True
     # OLLAMA_HOST: str = "http://localhost:11434"

@@ -10,6 +10,7 @@ from uuid import uuid4
 BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://127.0.0.1:8080")
 API_URL = f"{BACKEND_BASE_URL}/predict"
 API_MODELS = f"{BACKEND_BASE_URL}/models"
+API_RAG = f"{BACKEND_BASE_URL}/rag"
 
 # API_URL = os.getenv("API_URL", "http://127.0.0.1:8080/predict")
 # API_MODELS = os.getenv("API_MODELS", "http://127.0.0.1:8080/models")
@@ -47,6 +48,24 @@ async def list_models():
             st.error(f"Error obteniendo modelos: {str(e)}")
             return []
 
+
+@st.dialog("Error")
+def alert_dialog():
+    st.write(f"Por favor adjunta un PDF de ficha tecnica")
+    if st.button("Entiendo"):
+        st.rerun()
+    
+@st.dialog("Información")
+def success_dialog():
+    st.write(f"PDF añadido exitosamente")
+    if st.button("Ok"):
+        st.rerun()
+
+
+# Paso 2: Función para limpiar el uploader
+def limpiar_uploader():
+    st.session_state.reset_uploader = True
+
 st.set_page_config(page_title="Asistente de Motores", layout="centered")
 st.image("public/logo_dark.png", use_container_width=True) 
 # st.title('Ollama Chatbot')
@@ -63,6 +82,17 @@ if 'historial' not in st.session_state:
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid4())
 
+# Paso 1: Inicializamos las claves
+if "uploader_key" not in st.session_state:
+    st.session_state.uploader_key = str(uuid4())
+if "reset_uploader" not in st.session_state:
+    st.session_state.reset_uploader = False
+
+# Paso 3: Lógica para cambiar la key (trigger visual)
+if st.session_state.reset_uploader:
+    st.session_state.uploader_key = str(uuid4())
+    st.session_state.reset_uploader = False
+
 # Sidebar con controles
 with st.sidebar:
     st.write('## Model Selection')
@@ -75,11 +105,29 @@ with st.sidebar:
     st.write('## DB Selection')
     st.session_state.db_selection = st.selectbox(
         'Select a Vector Data Base',
-        options=['Milvus', 'Pinecone', 'Weaviate'],
+        options=['Milvus', 'FAISS', 'Chroma', 'Qdrant'],
         index=0
     )
 
-    uploaded_pdf = st.file_uploader("Añade una ficha técnica", accept_multiple_files=False)
+
+    uploaded_pdf = st.file_uploader("Adjunta una ficha técnica", accept_multiple_files=False, key=st.session_state.uploader_key)
+    if st.button("Añadir PDF", use_container_width=True):
+        try:
+            if uploaded_pdf:
+                with httpx.Client() as client:
+                    response = client.post(
+                    API_RAG, # Use client.post for file uploads typically
+                    files={"file": (uploaded_pdf.name, uploaded_pdf.getvalue(), "application/pdf")},
+                    data={"data_base_name": str(st.session_state.db_selection)}
+                )
+                response.raise_for_status() # Raises an HTTPStatusError for bad responses (4xx or 5xx)
+                success_dialog()
+                limpiar_uploader()
+            else:
+                alert_dialog()
+
+        except Exception as e:
+            st.error(f"Error al Cargar PDF: {str(e)}")
     
     st.session_state.temperature = st.slider(
         'Temperatura',
