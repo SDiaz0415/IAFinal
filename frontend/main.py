@@ -206,7 +206,7 @@ if user_input:
 
     try:
         with st.chat_message("assistant", avatar=icon_assistant):
-            # with st.spinner("🧠 El modelo está pensando..."):
+            with st.spinner("🧠 El modelo está pensando..."):
                 st.session_state.show_think = False
                 response_area_think = st.empty()  # Área para pensamientos
                 response_area_content = st.empty()  # Área para contenido principal
@@ -240,7 +240,7 @@ if user_input:
                         print(f"Enviando POST a: {API_URL}")  # Debug 4
                         response = await client.post(
                             API_URL,
-                            files={"file": (uploaded_pdf.name, uploaded_pdf, "application/pdf")},
+                            #files={"file": (uploaded_pdf.name, uploaded_pdf, "application/pdf")},
                             data={
                                 "input_text": user_input,
                                 "model": st.session_state.model_selection,

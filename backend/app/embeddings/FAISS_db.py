@@ -62,7 +62,6 @@ class FAISSConnection(VectorDBConnection):
         if not self._is_connected:
             raise ConnectionError("No conectado a Pinecone. Llama a .connect() primero.")
         try:
-            self._vector_store.save_local(self.end_point)
             retrieved_docs = self._vector_store.similarity_search(user_query, k=top_k)
             serialized = "\n\n".join(
                 f"[Página: {doc.metadata.get('page', 'N/A')}]\n{doc.page_content}"

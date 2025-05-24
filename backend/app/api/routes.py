@@ -94,7 +94,7 @@ async def list_available_models():
 
 @router.post("/predict")
 async def predict(
-    file: UploadFile = File(...),
+    # file: UploadFile = File(...),
     input_text: str = Form(...),
     model: str = Form(...),
     temperature: float = Form(...),
