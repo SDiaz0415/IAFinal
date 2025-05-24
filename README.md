@@ -23,8 +23,8 @@ Este proyecto implementa un chatbot especializado en fichas técnicas de automó
 │   │   ├── __init__.py
 │   │   ├── chroma_db
 │   │   ├── FAISS_db.py
-│   │   └── milvus_db.py
-│   │   └── Qdrant_db.py
+│   │   ├── milvus_db.py
+│   │   ├── Qdrant_db.py
 │   │   └── service.py
 │   ├── 📁 llm
 │   │   ├── __init__.py
@@ -35,7 +35,9 @@ Este proyecto implementa un chatbot especializado en fichas técnicas de automó
 │   │   └── rag.py
 │   └── main.py
 ├── 📁 data
-│   └── __init__.py
+│   ├── 202411-01-sail.pdf
+│   ├── 202411-03-onix-turbo.pdf
+│   └── 202411-08-tahoe.pdf
 ├── .dockerignore
 ├── .gitignore
 ├── .python-version
@@ -179,14 +181,19 @@ QDRANT_API=''
 
 2.  **Clona este repositorio**
 
-Para iniciar el chatbot se corre en dos partes, ejecuta el siguiente comando en la consola dentro del directorio del backend:
+    Para iniciar el chatbot se corre en dos partes, ejecuta el siguiente comando en la consola dentro del directorio del backend:
 
-```bash
-make run
-```
+    ```bash
+    make run
+    ```
 
-Una vez iniciado el backend dirigite a la carpeta frontend y ejecuta el siguiente comando en la consola dentro del directorio:
+    Una vez iniciado el backend dirigite a la carpeta frontend y ejecuta el siguiente comando en la consola dentro del directorio:
 
-```bash
-make run
-```
+    ```bash
+    make run
+    ```
+
+3.  **Chat Funcionando**
+| App resultado |
+|------------------|
+| ![app](./backend/data/chat_images/image.png) |
