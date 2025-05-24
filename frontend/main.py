@@ -114,7 +114,7 @@ with st.sidebar:
     if st.button("Añadir PDF", use_container_width=True):
         try:
             if uploaded_pdf:
-                with httpx.Client() as client:
+                with httpx.Client(timeout=400.0) as client:
                     response = client.post(
                     API_RAG, # Use client.post for file uploads typically
                     files={"file": (uploaded_pdf.name, uploaded_pdf.getvalue(), "application/pdf")},
