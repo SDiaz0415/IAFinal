@@ -35,6 +35,8 @@ Este proyecto implementa un chatbot especializado en fichas técnicas de automó
 │   │   └── rag.py
 │   └── main.py
 ├── 📁 data
+│   ├── 📁 chat_images
+│   │   ├── image.png
 │   ├── 202411-01-sail.pdf
 │   ├── 202411-03-onix-turbo.pdf
 │   └── 202411-08-tahoe.pdf
@@ -194,6 +196,7 @@ QDRANT_API=''
     ```
 
 3.  **Chat Funcionando**
-| App resultado |
-|------------------|
-| ![app](./backend/data/chat_images/image.png) |
+
+    | App resultado |
+    |------------------|
+    | ![app](./backend/data/chat_images/image.png) |
