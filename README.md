@@ -98,7 +98,7 @@ Una vez que tengas Ollama instalado, necesitarás descargar un modelo de lenguaj
     ```bash
     ollama run llama3.2
     ```
-    (Puedes reemplazar `llama3.2` con el nombre del modelo que prefieras) y obligatorio descargar el modelo de embeddings `nomic-embed-text`.
+    (Puedes reemplazar `llama3.2` con el nombre del modelo que prefieras).
 
 2.  **Descargar el modelo de embeddings `nomic-embed-text`**: Este modelo es necesario para el componente de recuperación del RAG.
     ```bash
@@ -185,9 +185,8 @@ Para iniciar el chatbot se corre en dos partes, ejecuta el siguiente comando en 
 make run
 ```
 
-Una vez iniciado el backend dirigite a la carpeta forntend y ejecuta el siguiente comando en la consola dentro del directorio:
+Una vez iniciado el backend dirigite a la carpeta frontend y ejecuta el siguiente comando en la consola dentro del directorio:
 
 ```bash
 make run
----
-
+```
